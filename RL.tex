@@ -3,21 +3,252 @@
 \usepackage{amsmath}
 \usepackage{fullpage}
 \usepackage{microtype}
+\usepackage{amssymb}
+\usepackage{tocloft} % control the table of content
+\usepackage{titlesec} % use titlesec to format the style of section
+
+
+% This needs to be the last package
+% use colorlinks to add color to the link, set the link color to blue
+\usepackage[pdftex,colorlinks=true,linkcolor=blue]{hyperref} 
+
+
+
+% command for add the item to the table of content, each item is a subsection
+\newcommand{\ItemTitle}[2]{\hypertarget{#1}{\addcontentsline{toc}{subsection}{#2}\subsection*{#2}}} 
+
+
+\newcommand{\Item}[2]{\hyperlink{#1}{#2}} % short command for making the hyperlink
+
+\newcommand{\Working}{Still working on it \dots} % short command for the ``working'' text
+
+
+% following command configure the table of content
+
+% set the ``contents'' font size and after skip
+\renewcommand{\cfttoctitlefont}{\fontsize{18}{22}\usefont{OT1}{qpl}{m}{n}\selectfont}
+\setlength\cftaftertoctitleskip{5pt}
+
+
+%The two arguments to \fontsize are the actual font size and the size of the baseline-skip. The baseline-skip should be set to roughly 1.2x the font size.
+
+%\usefont{<encoding>}{<family>}{<series>}{<shape>}
+%The family:The font family.
+%The series: l=light, m=medium, b=bold, bx=very bold.
+%The shape: it=italic, n=normal, sl=slanted, sc=small capitals.
+
+%\selectfont command causes LaTeX to look in its mapping scheme for a metric corresponding to above attributes
+
+% set the font of the page number and text in roc
+\renewcommand{\cftsubsecfont}{\fontsize{8}{10}\usefont{OT1}{qpl}{m}{n}\selectfont}
+\renewcommand{\cftsubsecpagefont}{\fontsize{8}{10}\usefont{OT1}{qpl}{m}{n}\selectfont}
+
+% reduce the sep of the dot in toc
+\renewcommand{\cftsubsecdotsep}{1}
 
 
 \begin{document}
-\title{\bf Reference on Reinforcement Learning}
-\author{}
+\title{\bf Notes on Reinforcement Learning}
+\author{Ermo Wei}
 \date{}
 
 \maketitle
-\paragraph{GLIE} GLIE stands for 
 
-\paragraph{On-policy\&Off-policy}
+\tableofcontents
+\hypersetup{colorlinks=blue}
+
+\clearpage 
+
+
+
+\ItemTitle{actorcritic}{Actor-Critic Method} \Working
+
+\ItemTitle{bellmanequation}{Bellman Equation} Due to the Markov property of MDP, we can define the value function of a policy recursively to be 
+\begin{displaymath}
+  \begin{split}
+    V^{\pi}(s) & = E_{\pi}\{R_t|s_t=s\}\\
+    & = E_{\pi}\{\Sigma_{k=0}^{\infty}{\gamma^{k}r_{t+k+1}}|s_t = s\}\\
+    & = E_{\pi}\{r_{t+1}+\gamma \Sigma_{k=0}^{\infty}{\gamma^{k}r_{t+k+2}}|s_t = s\}\\
+  \end{split}
+\end{displaymath}
+If policy is stochastic, then we have
+\begin{displaymath}
+  \begin{split}
+    V^{\pi}(s) & = \Sigma_{a}\pi(s,a)\Sigma_{s'}\Pr(s'|s,a)[R(s,a)+\gamma E_{\pi}\{\Sigma_{k=0}^{\infty}\gamma^{k}r_{t+k+2}|s_{t+1}=s'\}]\\
+    & = \Sigma_{a}\pi(s,a)\Sigma_{s'}\Pr(s'|s,a)[R(s,a)+\gamma V^{\pi}(s')]\\
+    & = \Sigma_{a}\pi(s,a)\{R(s,a)+\Sigma_{s'}\Pr(s'|s,a)\gamma V^{\pi}(s')\}
+  \end{split}
+\end{displaymath}
+If policy is deterministic, then the Value function of policy $\pi$ at state $s$ is
+\begin{displaymath}
+  V^{\pi}(s) = R(s,\pi(s))+\gamma \Sigma_{s'}\Pr(s'|s,\pi(s))V^{\pi}(s')
+\end{displaymath}
+Thus, the Bellman optimality equation can be defined as
+\begin{displaymath}
+  V^{*}(s) = \max_a \{R(s,a)+\gamma \Sigma_{s'}\Pr(s'|s,a)V^{*}(s')\}
+\end{displaymath}
+
+Detail see \cite{barto1998reinforcement}
+
+\ItemTitle{bellmanoperator}{Bellman Operator} Consider a \Item{MDP}{MDP}, Bellman Operator for policy $\pi$ can be defined as a map from a value function to another value function
+\begin{displaymath}
+  T^\pi:\mathbb{R}^N \rightarrow \mathbb{R}^N
+\end{displaymath}
+where $N$ is the cardinality of state space, i.e. $N = |S|$.
+
+\Working
+
+
+\ItemTitle{boltzmannselection}{Boltzmann Selection} \Working
+
+\ItemTitle{contraction}{Contraction}  The operator $F$ (function $f$) is a $\alpha$-contraction  ($0\le\alpha<1$, called \Item{lipcon}{Lipschitz constant} for $F$) with respect to some norm $\|\cdot\|$ if
+\begin{displaymath}
+  \forall X,\overline{X}: \|FX-F\overline{X}\| \le \alpha \|X-\overline{X}\| \quad \text{or} \quad \|f(X)-f(\overline{X})\| \le \alpha \|X-\overline{X}\|
+\end{displaymath}
+
+\begin{itemize}
+\item Theorem 1. The sequence $X, FX, F^2X, \ldots$ converges for every $X$.  e.g. $X, f(X), f(f(X)), \ldots$ converges for every $X$\\
+
+Proof:
+
+Useful fact : Cauchy sequences : If for $x_0,x_1,x_2,\ldots,$ we have that
+\begin{displaymath}
+  \forall \epsilon, \exists K : \|x_M-x_N \| < \epsilon \quad \text{for} \quad M,N > K
+\end{displaymath}
+then we call $x_0,x_1,x_2,\ldots,$ a Cauchy sequence.
+
+If $x_0,x_1,x_2,\ldots,$ is a Cauchy sequence, and $x_i \in \mathbb{R}^n$, then there exists $x^* \in \mathbb{R}^n$ such that $\lim_{i \to \infty}x_i = x^*$.
+
+Proof:
+Assume $N > M$.
+\begin{displaymath}
+  \begin{alignedat}{2} % use alignedat to align multiple columns
+  \| F^MX-F^NX \| & = \| \Sigma_{i=M}^{N-1}(F^iX-F^{i+1}X)\| & &\\
+  & \le \Sigma_{i=M}^{N-1} \| F^iX-F^{i+1}X \|  & &\quad \text{by triangle inequality}\\
+  & \le \Sigma_{i=M}^{N-1} \alpha ^{i} \| X-FX\|  & &\quad \text{use the condition in Theorem}\\
+  & = \| X-FX \| \Sigma_{i=M}^{N-1}\alpha^i & &\\
+  & = \| X-FX \| \frac{\alpha^M}{1-\alpha} & &
+  \end{alignedat}
+\end{displaymath}
+
+As $\| X-FX \| \frac{\alpha^M}{1-\alpha}$ goes to zero for M going to infinity, we have that for any $\epsilon > 0$ for $\|F^MX-F^NX\| \le \epsilon$ to hold for all $M,N>K$, it suffices to pick $K$ large enough. Hence, $X,FX,\ldots$ is Cauchy sequence and converges.
+
+\item Theorem 2 (Banach fixed-point theorem). $F$ has a unique fixed point $X^*$ which satisfies $FX^* = X^*$ and all
+sequences $X$, $FX$, $F^2X$, $\ldots$ converge this unique fixed point $X^∗$.
+
+Proof:
+
+Suppose $F$ has two fixed points. Let's say
+\begin{displaymath}
+  \begin{split}
+  FX_1 = & X_1\\
+  FX_2 = & X_2\\
+  \end{split}
+\end{displaymath}
+this implies, $\| FX_1 - FX_2\| = \| X_1-X_2 \|$. At the same time we have from the contractive property of $F$ 
+\begin{displaymath}
+  \|FX_1-FX_2\| \le \alpha \|X_1-X_2\|
+\end{displaymath}
+Combining both gives us 
+\[
+\|X_1-X_2\| \le \alpha\|X_1-X_2\|
+\]
+Hence, $X_1=X_2$.
+\end{itemize}
+
+Detail see \cite{conrad2014contraction}
+
+
+
+
+
+\ItemTitle{epsilongreedy}{\texorpdfstring{$\epsilon$}--greedy}
+% use \texorpdfstring to put math notation in bookmark
+$\epsilon$-greedy is a common used exploration strategy for Model-free reinforcement learning. This strategy can be seen as a combination of greedy strategy and random strategy. Every time when agent choose an action to perform, it choose greedily with probability 1-$\epsilon$ (exploitation), and randomly with probability $\epsilon$ (exploration). However, based on the changes of $\epsilon$ value, this method have two versions. First, the $\epsilon$ value can decrease as the learning process goes on, this is the \textit{decay exploration} method. Another one which are more commonly used is that we fix the value of $\epsilon$. 
+
+The difference between those methods is that, the first one can be \hyperlink{glie}{GLIE} if the $\epsilon$-value goes 0 eventually but the second one cannot. Suppose we have a counter of how many times a state have been visited, $n_t(s)$ and a constant $c$. As long as the $\epsilon$ value for the a state $\epsilon_t(s) = \frac{c}{n_t(s)}$ where $0<c<1$, this method can be consider \hyperlink{glie}{GLIE}. However, in practice, we usually use fixed value for $\epsilon$ and after the convergence of the estimation value of action, we switch to greedy selection. 
+
+\ItemTitle{ergodicmdp}{Ergodic MDP}
+An MDP is said to be ergodic if for each policy $\pi$ the Markov chain induced by $\pi$ is ergodic.
+We are giving the definition of Ergodicity below. But first, we will give some auxiliary definitions.
+Several definition of Markov chain:
+\begin{itemize}
+\item Reducibility\\
+A Markov chain is said to be irreducible if it is possible to get to any state from any state.
+\item Aperiodicity\\
+A state $i$ has period $k$ if any return to state $i$ must occur in multiples of $k$ time steps. For example, suppose it is possible to return to a state in \{6, 8, 10, 12, $\ldots$\} time steps, then $k$ would be 2, even though 2 does not appear in this list. If $k = 1$, then the state is said to be aperiodic: returns to state $i$ can occur at irregular times.
+\item Recurrence\\
+A state $i$ is said to be transient if, given that we start in state $i$, there is a non-zero probability that we will never return to $i$. State $i$ is recurrent (or persistent) if it is not transient. Recurrent states are guaranteed to have a finite hitting time.
+\end{itemize}
+Here we have the definition of Ergodicity.
+
+A state $i$ is said to be ergodic if it is aperiodic and positive recurrent. In other words, a state $i$ is ergodic if it is recurrent, has a period of 1 and it has finite mean recurrence time. If all states in an irreducible Markov chain are ergodic, then the chain is said to be ergodic.
+
+It can be shown that a finite state irreducible Markov chain is ergodic if it has an aperiodic state. {\bf A model has the ergodic property if there's a finite number $N$ such that any state can be reached from any other state in exactly $N$ steps.} For example, we will have $N=1$ if we have a fully connected transition matrix where all transitions have a non-zero probability.
+{\bf Additionally, an \Item{statdistribution}{stationary distribution} $d^{\pi}$ of states exists and is independent start state $s_0$.}
+
+Detail see \cite{ortner2007linear}.
+
+\ItemTitle{glie}{GLIE}
+GLIE stands for ``Greedy in the Limit of Infinite Exploration''. The learning policies in RL can be divided into two broad categories: a \textit{decay exploration} strategy which become more and more greedy and \textit{persistent exploration} which always maintain a fix exploration rate. The advantage of the first one is that we can eventually converge to the optimal policy. The second one may have the advantage always be adaptive but may not converge to the optimal. (In here, we talk about convergence in the sense that the behavior will become optimal. It is possible that some of the algorithm converge to the correct Q-value but still behave randomly with some probability by using persistent exploration strategy, Q-learning with fix $\epsilon$-greedy for example). We may want to consider this in the context of \Item{onoffpolicy}{on-policy\&off-policy}.
+
+If a \textit{decay exploration} strategy has the following two characters:
+\begin{enumerate}
+\item each action is executed infinitely often in every state that is visited infinitely often, and
+\item in the limit, the learning policy is greedy with respect to the Q-value function with probability 1.
+\end{enumerate}
+Than we can consider this decay exploration strategy GLIE. Some example of GLIE include \Item{boltzmannselection}{Boltzmann Selection}, \Item{epsilongreedy}{$\epsilon$-greedy}.
+
+Detail see \cite{singh2000convergence}.
+
+\ItemTitle{lipcon}{Lipschitz Continuity} \Working
+
+\ItemTitle{MDP}{Markov Decision Process}
+blah blah here
+
+Markov Decision Process can be seen as a extension of Markov Chain with additional action set (allowing selection) and reward function (motivation). It can be reduced to Markov chain if we have only one action per state and same reward for all the state.
+
+
+\ItemTitle{stogame}{Stochastic Game}
+Stochastic game can been seen as an extension of \Item{MDP}{MDP}.
+
+
+\ItemTitle{onoffpolicy}{On-policy and Off-policy}
+An RL algorithm can be essentially divided into two parts, the \textit{learning policy} and \textit{update rule}. The first one is a non-stationary policy that maps experience (state visited, action chosen, reward received) to into a currently choice of action. The second part is how the algorithm uses experience to change its estimation of the optimal value function.
+In off-policy algorithm, the \textit{update rules} doesn't have relationship with \textit{learning policy}, that is the \textit{update rules} doesn't care the what action agent take. Q-learning can be consider as the off-policy algorithm.
+\begin{displaymath}
+  Q_{t+1}(s,a) = (1-\alpha)Q_{t}(s,a)+\alpha(r_t+\gamma \max_{a'}Q(s',a'))
+\end{displaymath}
+
+We can see that the Q-value is update based on the $\max_{a'}Q(s',a')$, which doesn't depend on the action the agent was taking.
+
+However, if we take a look of SARSA(0), which is very similar to Q-learning.
+\begin{displaymath}
+  Q_{t+1}(s,a) = (1-\alpha)Q_{t}(s,a)+\alpha(r_t+\gamma Q(s',a'))
+\end{displaymath}
+
+We can see the update is based on the Q-value of the next action of the agent. Thus it is an on-policy algorithm. The convergence condition are heavily depend on the \textit{learning policy}, The Q-value of SARSA(0) can only converge to optimality in the limit only if the learning policy behavior optimal in the limit. The SARSA(0) and Q-learning will be same if we use greedy action selection strategy.
+
+Detail see \cite{singh2000convergence}.
+
+
+
+\ItemTitle{policygradient}{Policy Gradient Reinforcement Learning}
+
+\Working \Item{ergodicmdp}{Ergodic MDP}.
+
+
+
+\ItemTitle{statdistribution}{Stationary Distribution}
+
+\Working
+
+
 
 \bibliography{RL}
 \bibliographystyle{plain}
 \end{document}
+
 
 
 
