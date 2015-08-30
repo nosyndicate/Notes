@@ -1,4 +1,4 @@
-\documentclass{article}[11pt]
+\documentclass[9pt]{article}
 
 \usepackage{amsmath}
 \usepackage{fullpage}
@@ -6,7 +6,7 @@
 \usepackage{amssymb}
 \usepackage{tocloft} % control the table of content
 \usepackage{titlesec} % use titlesec to format the style of section
-
+\usepackage{titling}
 
 % This needs to be the last package
 % use colorlinks to add color to the link, set the link color to blue
@@ -14,41 +14,71 @@
 
 
 
-% command for add the item to the table of content, each item is a subsection
-\newcommand{\ItemTitle}[2]{\hypertarget{#1}{\addcontentsline{toc}{subsection}{#2}\subsection*{#2}}} 
+% command for add the item to the table of content, each item is a section
+\newcommand{\ItemTitle}[2]{\hypertarget{#1}{\section{#2}}}
 
+% deprecated method
+%\newcommand{\ItemTitle}[2]{\hypertarget{#1}{\addcontentsline{toc}{section}{#2}\section*{#2}}} 
 
 \newcommand{\Item}[2]{\hyperlink{#1}{#2}} % short command for making the hyperlink
 
 \newcommand{\Working}{Still working on it \dots} % short command for the ``working'' text
 
 
+
+
+
+% set the default font
+\renewcommand*\rmdefault{ppl}
+
+
+
+
 % following command configure the table of content
+\setcounter{secnumdepth}{0} % this remove the section number in section title and table of content
 
 % set the ``contents'' font size and after skip
-\renewcommand{\cfttoctitlefont}{\fontsize{18}{22}\usefont{OT1}{qpl}{m}{n}\selectfont}
-\setlength\cftaftertoctitleskip{5pt}
+\renewcommand{\cfttoctitlefont}{\fontsize{18}{22}\usefont{OT1}{ppl}{m}{n}\selectfont}
+\setlength{\cftaftertoctitleskip}{10pt}
 
+% The two arguments to \fontsize are the actual font size and the size of the baseline-skip. The baseline-skip should be set to roughly 1.2x the font size.
 
-%The two arguments to \fontsize are the actual font size and the size of the baseline-skip. The baseline-skip should be set to roughly 1.2x the font size.
+% \usefont{<encoding>}{<family>}{<series>}{<shape>}
+% The family:The font family.
+% The series: l=light, m=medium, b=bold, bx=very bold.
+% The shape: it=italic, n=normal, sl=slanted, sc=small capitals.
 
-%\usefont{<encoding>}{<family>}{<series>}{<shape>}
-%The family:The font family.
-%The series: l=light, m=medium, b=bold, bx=very bold.
-%The shape: it=italic, n=normal, sl=slanted, sc=small capitals.
-
-%\selectfont command causes LaTeX to look in its mapping scheme for a metric corresponding to above attributes
+% \selectfont command causes LaTeX to look in its mapping scheme for a metric corresponding to above attributes
 
 % set the font of the page number and text in roc
-\renewcommand{\cftsubsecfont}{\fontsize{8}{10}\usefont{OT1}{qpl}{m}{n}\selectfont}
-\renewcommand{\cftsubsecpagefont}{\fontsize{8}{10}\usefont{OT1}{qpl}{m}{n}\selectfont}
+\renewcommand{\cftsecfont}{\fontsize{10}{12}\usefont{OT1}{ppl}{m}{n}\selectfont}
+\renewcommand{\cftsecpagefont}{\fontsize{10}{12}\usefont{OT1}{ppl}{m}{n}\selectfont}
 
-% reduce the sep of the dot in toc
-\renewcommand{\cftsubsecdotsep}{1}
+% reduce the sep of the dot in toc and set the skip between each item
+\renewcommand{\cftsecdotsep}{1}
+\setlength{\cftbeforesecskip}{-0.5pt}
+
+
+
+
+
+
+% set the position of document author and title
+% \par end a paragraph
+\pretitle{\begin{flushleft} \Huge}
+\posttitle{\par \end{flushleft} \vskip 0.5em}
+\preauthor{\begin{flushleft} \large\scshape}
+\postauthor{\par \end{flushleft}}
+\setlength{\droptitle}{-40pt}
+
+
+% set the style of section
+\titleformat{\section}[runin]{\bfseries}{}{0pt}{}
+
 
 
 \begin{document}
-\title{\bf Notes on Reinforcement Learning}
+\title{Notes on Reinforcement Learning}
 \author{Ermo Wei}
 \date{}
 
