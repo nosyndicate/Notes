@@ -2,7 +2,7 @@
 
 \usepackage{rl}
 
-
+\setcitestyle{authoryear}
 
 \begin{document}
 \title{Notes on Reinforcement Learning}
@@ -45,7 +45,7 @@ Thus, the Bellman optimality equation can be defined as
   V^{*}(s) = \max_a \{R(s,a)+\gamma \Sigma_{s'}\Pr(s'|s,a)V^{*}(s')\}
 \end{displaymath}
 
-Detail see \cite{barto1998reinforcement}
+Detail see \citet{barto1998reinforcement}
 
 \ItemTitle{bellmanoperator}{Bellman Operator} Consider a \Item{MDP}{MDP}, Bellman Operator for policy $\pi$ can be defined as a map from a value function to another value function
 \begin{displaymath}
@@ -113,7 +113,7 @@ Combining both gives us
 Hence, $X_1=X_2$.
 \end{itemize}
 
-Detail see \cite{conrad2014contraction}
+Detail see \citet{conrad2014contraction}
 
 
 \ItemTitle{policyefficiency}{Data Efficiency for Policy Gradient Method} In \Item{policy gradient}{policy gradient} method, when we try to evaluate the expected return of a policy $\pi$, we have to run the policy several time to be able to have reasonable estimation of how good the policy is. Let $J(\theta)$ denote the expected return of policy $\pi_{\theta}$, and $\tau$ denote the trajectory or rollout or history (these terms are interchangeable) of executing the policy $\pi_{\theta}$, then we know
@@ -131,6 +131,9 @@ In practice, if we want to evaluate $J(\theta)$, we may want to draw the rollout
 	\hat{J(\theta)} = \frac{1}{N}\Sigma_{i}R(\tau_i)
 \]
 Imagine, however, instead of $\pi_{\theta}$, we only have $\pi_{\theta'}$ available, we can do some trick like this
+\begin{comment}
+need to figure why can we ignore the dynamic model
+\end{comment}
 \[
 \begin{split}
 J(\theta) = & \Sigma_{\tau}P(\tau;\theta)R(\tau)\\
@@ -178,7 +181,7 @@ A state $i$ is said to be ergodic if it is aperiodic and positive recurrent. In 
 It can be shown that a finite state irreducible Markov chain is ergodic if it has an aperiodic state. {\bf A model has the ergodic property if there's a finite number $N$ such that any state can be reached from any other state in exactly $N$ steps.} For example, we will have $N=1$ if we have a fully connected transition matrix where all transitions have a non-zero probability.
 {\bf Additionally, an \Item{statdistribution}{stationary distribution} $d^{\pi}$ of states exists and is independent start state $s_0$.}
 
-Detail see \cite{ortner2007linear}.
+Detail see \citet{ortner2007linear}.
 
 \ItemTitle{glie}{GLIE}
 GLIE stands for ``Greedy in the Limit of Infinite Exploration''. The learning policies in RL can be divided into two broad categories: a \textit{decay exploration} strategy which become more and more greedy and \textit{persistent exploration} which always maintain a fix exploration rate. The advantage of the first one is that we can eventually converge to the optimal policy. The second one may have the advantage always be adaptive but may not converge to the optimal. (In here, we talk about convergence in the sense that the behavior will become optimal. It is possible that some of the algorithm converge to the correct Q-value but still behave randomly with some probability by using persistent exploration strategy, Q-learning with fix $\epsilon$-greedy for example). We may want to consider this in the context of \Item{onoffpolicy}{on-policy\&off-policy}.
@@ -190,9 +193,11 @@ If a \textit{decay exploration} strategy has the following two characters:
 \end{enumerate}
 Than we can consider this decay exploration strategy GLIE. Some example of GLIE include \Item{boltzmannselection}{Boltzmann Selection}, \Item{epsilongreedy}{$\epsilon$-greedy}.
 
-Detail see \cite{singh2000convergence}.
+Detail see \citet{singh2000convergence}.
 
 \ItemTitle{lipcon}{Lipschitz Continuity} \Working
+
+\ItemTitle{lstd}{LSTD} \Working
 
 
 
@@ -229,15 +234,19 @@ However, if we take a look of SARSA(0), which is very similar to Q-learning.
 
 We can see the update is based on the Q-value of the next action of the agent. Thus it is an on-policy algorithm. The convergence condition are heavily depend on the \textit{learning policy}, The Q-value of SARSA(0) can only converge to optimality in the limit only if the learning policy behavior optimal in the limit. The SARSA(0) and Q-learning will be same if we use greedy action selection strategy.
 
-Detail see \cite{singh2000convergence}.
+Detail see \citet{singh2000convergence}.
 
 
 
-\ItemTitle{policygradient}{Policy Gradient Reinforcement Learning}
+\ItemTitle{policygradient}{Policy Gradient Reinforcement Learning} Instead of determining the action based on value function, another method of determine the action to take is the direct policy search method. When we have a policy $\pi$, the way to evaluate the goodness of that policy is straightforward, we can just follow that policy several times, and take the average of the policy.
+\[
+	\begin{split}
+	J(\theta) = & E_{P(\tau|\theta)}[\Sigma_{t=0}^{H}\gamma^tR(s_t,u_t)|\pi_{\theta}]\\
+	= & \Sigma_{i=1}^m R()
+	\end{split}
+\]
 
-\Working \Item{ergodicmdp}{Ergodic MDP}.
-
-
+\ItemTitle{pi}{Policy Iteration} \Working
 
 \ItemTitle{statdistribution}{Stationary Distribution}
 
@@ -249,8 +258,9 @@ Stochastic game can been seen as an extension of \Item{MDP}{MDP}.
 
 \ItemTitle{td}{Temporal Difference Method} 
 
+\ItemTitle{vi}{Value Iteration} 
+
 \bibliography{RL}
-\bibliographystyle{plain}
 \end{document}
 
 

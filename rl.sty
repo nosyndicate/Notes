@@ -10,11 +10,16 @@
 \RequirePackage{titlesec}
 \RequirePackage{titling}
 \RequirePackage{graphicx}
+\RequirePackage{natbib}
 
 % This needs to be the last package
 % use colorlinks to add color to the link, set the link color to blue
 \RequirePackage[pdftex,colorlinks=true,linkcolor=blue]{hyperref}
 
+% set the style of citation
+\bibliographystyle{abbrvnat}
+\setcitestyle{authoryear,open={(},close={)}}
+ 
 
 % set the default font
 \renewcommand*\rmdefault{ppl}
