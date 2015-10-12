@@ -45,7 +45,7 @@ Thus, the Bellman optimality equation can be defined as
   V^{*}(s) = \max_a \{R(s,a)+\gamma \Sigma_{s'}\Pr(s'|s,a)V^{*}(s')\}
 \end{displaymath}
 
-Detail see \citet{barto1998reinforcement}
+Detail see \citep{barto1998reinforcement}
 
 \ItemTitle{bellmanoperator}{Bellman Operator} Consider a \Item{MDP}{MDP}, Bellman Operator for policy $\pi$ can be defined as a map from a value function to another value function
 \begin{displaymath}
@@ -113,7 +113,7 @@ Combining both gives us
 Hence, $X_1=X_2$.
 \end{itemize}
 
-Detail see \citet{conrad2014contraction}
+Detail see \citep{conrad2014contraction}
 
 
 \ItemTitle{policyefficiency}{Data Efficiency for Policy Gradient Method} In \Item{policy gradient}{policy gradient} method, when we try to evaluate the expected return of a policy $\pi$, we have to run the policy several time to be able to have reasonable estimation of how good the policy is. Let $J(\theta)$ denote the expected return of policy $\pi_{\theta}$, and $\tau$ denote the trajectory or rollout or history (these terms are interchangeable) of executing the policy $\pi_{\theta}$, then we know
@@ -181,10 +181,54 @@ A state $i$ is said to be ergodic if it is aperiodic and positive recurrent. In 
 It can be shown that a finite state irreducible Markov chain is ergodic if it has an aperiodic state. {\bf A model has the ergodic property if there's a finite number $N$ such that any state can be reached from any other state in exactly $N$ steps.} For example, we will have $N=1$ if we have a fully connected transition matrix where all transitions have a non-zero probability.
 {\bf Additionally, an \Item{statdistribution}{stationary distribution} $d^{\pi}$ of states exists and is independent start state $s_0$.}
 
-Detail see \citet{ortner2007linear}.
+Detail see \citep{ortner2007linear}.
+
+\ItemTitle{replay}{Experience Replay} \citep{Vanseijen2015Deeper} \citep{Riedmiller2005Neural}
+
+\ItemTitle{fa}{Function Approximation} Function approximation is a way of combining supervised learning algorithms with learning procedures in Reinforcement Learning to be able to generalize value function into large scale \Item{MDP}{MDP}. There are three different objective function for function approximation. 
+\begin{enumerate}
+\item Direct method\\
+In direct method, we are trying to minimize the square error of our estimation and the ``true'' value function which we temporarily assume given by an oracle.
+\[
+J(\theta) = \frac{1}{2}(v(s) - V_{\theta}(s))^2
+\]
+The term$\frac{1}{2}$ is just for neat math like regular supervised learning, and $v(s)$ is the ``true'' value for state $s$ which we want to approximate. To use the gradient descent method, we take the gradient of the $J(\theta)$, which gives us
+\[
+\begin{split}
+\nabla_{\theta} J(\theta) = &\ \frac{1}{2} * 2 * (v(s) - V_{\theta}(s)) \nabla_{\theta} V_{\theta}(s)\\
+= &\ (v(s) - V_{\theta}(s)) \nabla_{\theta} V_{\theta}(s)
+\end{split}
+\]
+Note, in the equation above, $v(s)$ is just a constant number. Since we don't really have a oracle in learning, we need to find a way to estimate the ``true'' value function. Various method can be used here. For example, we can use the \Item{td}{temporal difference learning} rule, thus the gradient become $(r + \gamma V_{\theta}(s') - V_{\theta}(s)) \nabla_{\theta} V_{\theta}(s)$, or we can use the \Item{montecarlo}{monte carlo} estimation, then the gradient become $(G_t - V_{\theta}(s)) \nabla_{\theta} V_{\theta}(s)$ or eligibility trace.
+
+However, this direct method has some issue with convergence. \marginpar{detail here}
+\item Fixed point method\\
+Another kind of objective function is based on the ``fixed point'' notion in \Item{contraction}{contraction}. With the contraction property, we know the value function will converge to a fixed point
+\[
+	V = TV
+\]
+where $T$ is the bellman operator. Thus, after convergence, our value function should fulfill the Bellman equation which gives the second objective function
+\[
+\begin{split}
+J(\theta) = &\ \frac{1}{2}(V_{\theta}(s) - TV_{\theta}(s))^2\\
+= &\ \frac{1}{2}(V_{\theta}(s)-(r+\gamma V_{\theta}(s')))^2
+\end{split}
+\]
+when we take the gradient of this cost function $J(\theta)$, we have
+\[
+\begin{split}
+\nabla_{\theta} J(\theta) = &\ \frac{1}{2} * 2 * (r+\gamma V_{\theta}(s') - V_{\theta}(s)) \nabla_{\theta} (r+\gamma V_{\theta}(s') - V_{\theta}(s))\\
+= &\ (r+\gamma V_{\theta}(s') - V_{\theta}(s)) (\nabla_{\theta} \gamma V_{\theta}(s') - \nabla_{\theta}  V_{\theta}(s))\\
+= &\ (r+\gamma V_{\theta}(s') - V_{\theta}(s)) (\gamma \nabla_{\theta} V_{\theta}(s') - \nabla_{\theta}  V_{\theta}(s))
+\end{split}
+\]
+
+\marginpar{need more stuff here}
+\item Projected fixed point method 
+\end{enumerate}
 
 \ItemTitle{glie}{GLIE}
-GLIE stands for ``Greedy in the Limit of Infinite Exploration''. The learning policies in RL can be divided into two broad categories: a \textit{decay exploration} strategy which become more and more greedy and \textit{persistent exploration} which always maintain a fix exploration rate. The advantage of the first one is that we can eventually converge to the optimal policy. The second one may have the advantage always be adaptive but may not converge to the optimal. (In here, we talk about convergence in the sense that the behavior will become optimal. It is possible that some of the algorithm converge to the correct Q-value but still behave randomly with some probability by using persistent exploration strategy, Q-learning with fix $\epsilon$-greedy for example). We may want to consider this in the context of \Item{onoffpolicy}{on-policy\&off-policy}.
+GLIE stands for ``Greedy in the Limit of Infinite Exploration'' \citep{singh2000convergence}. The learning policies in RL can be divided into two broad categories: a \textit{decay exploration} strategy which become more and more greedy and \textit{persistent exploration} which always maintain a fix exploration rate. The advantage of the first one is that we can eventually converge to the optimal policy. The second one may have the advantage always be adaptive but may not converge to the optimal. (In here, we talk about convergence in the sense that the behavior will become optimal. It is possible that some of the algorithm converge to the correct Q-value but still behave randomly with some probability by using persistent exploration strategy, Q-learning with fix $\epsilon$-greedy for example). We may want to consider this in the context of \Item{onoffpolicy}{on-policy\&off-policy}.
 
 If a \textit{decay exploration} strategy has the following two characters:
 \begin{enumerate}
@@ -193,12 +237,12 @@ If a \textit{decay exploration} strategy has the following two characters:
 \end{enumerate}
 Than we can consider this decay exploration strategy GLIE. Some example of GLIE include \Item{boltzmannselection}{Boltzmann Selection}, \Item{epsilongreedy}{$\epsilon$-greedy}.
 
-Detail see \citet{singh2000convergence}.
 
 \ItemTitle{lipcon}{Lipschitz Continuity} \Working
 
 \ItemTitle{lstd}{LSTD} \Working
 
+Related paper
 
 
 \ItemTitle{MDP}{Markov Decision Process}
@@ -207,7 +251,7 @@ blah blah here
 Markov Decision Process can be seen as a extension of Markov Chain with additional action set (allowing selection) and reward function (motivation). It can be reduced to Markov chain if we have only one action per state and same reward for all the state.
 
 
-\ItemTitle{montecarlo}{Monte Carlo method} Monte Carlo method is a way of making the prediction in model-free environment. The question it wants to solve is that suppose we have a policy $\pi$ known, how good is this policy? In this case, we evaluate the policy by giving the method episodes of experience $\{s_1,a_1,r_2,\ldots,s_T\}$ generated by following policy $\pi$ and wants the value function $V^{\pi}$ as output.
+\ItemTitle{montecarlo}{Monte Carlo Method} Monte Carlo method is a way of making the prediction in model-free environment. The question it wants to solve is that suppose we have a policy $\pi$ known, how good is this policy? In this case, we evaluate the policy by giving the method episodes of experience $\{s_1,a_1,r_2,\ldots,s_T\}$ generated by following policy $\pi$ and wants the value function $V^{\pi}$ as output.
 
 As we know, the value of being in a state $s$ is the expectation of the discounted rewards received afterwards. 
 \[
@@ -234,7 +278,7 @@ However, if we take a look of SARSA(0), which is very similar to Q-learning.
 
 We can see the update is based on the Q-value of the next action of the agent. Thus it is an on-policy algorithm. The convergence condition are heavily depend on the \textit{learning policy}, The Q-value of SARSA(0) can only converge to optimality in the limit only if the learning policy behavior optimal in the limit. The SARSA(0) and Q-learning will be same if we use greedy action selection strategy.
 
-Detail see \citet{singh2000convergence}.
+Detail see \citep{singh2000convergence}.
 
 
 
