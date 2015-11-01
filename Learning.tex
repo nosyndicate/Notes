@@ -16,11 +16,101 @@
 
 \clearpage 
 
+\ItemTitle{activation}{Activation Function} Activation Function are important for neural network to have non-linearity. The commonly used activation function are summarize below. Most of them are typically combined with an affine transformation $\matr{a} = \matr{b} + \matr{W}\matr{x}$ and applied element-wise.
+\[
+	\matr{h} = f(\matr{a}) \rightarrow h_i = f(a_i) = f(b_i + \matr{W_{i,:}} *\matr{x})
+\]
+\begin{itemize}
+\item Sigmoid\\
+\[
+f(a) = \frac{1}{1+e^{-a}}
+\]
+\item Hyperbolic tangent
+\[
+f(a) = \tanh(a)
+\]
+\item Softmax
+\item Rectifier or rectified linear unit (ReLU)
+\[
+f(a) = \max(0,a)
+\]
+\item Maxout
+\item Softplus\\
+A smooth version of the rectifier, basically the same shape. But this function has differentiability and non-zero derivative everywhere.
+\[
+f(a) = \log(1+e^a)
+\]
+\end{itemize}
 
+\ItemTitle{bp}{Back Propagation} Let's start with linear neurons (also called linear filters). Here we first make two assumptions:
+\begin{itemize}
+\item The neuron has a real- valued output which is a weighted sum of its inputs
+\item The aim of learning is to minimize the square error summed over all training cases.
+\end{itemize}  
+The model of the linear neuron is like this :
+\[
+y = \sum w_i x_i = \matr{w}^T\matr{x}
+\]
+Since we are dealing with a simple linear neuron, we first derive the special case of back propagation algorithm, called \textit{delta rule}, which is a gradient descent learning rule for updating the weights of single layer neural network.
+\begin{enumerate}
+\item We first define the error of our training cases:
+\[
+	E = \frac{1}{2} \sum_{n \in \text{training set}} (t^n-y^n)^2
+\]
+\item Now we take the derivative of the error with respect to the weights
+\[
+\begin{split}
+	\frac{\partial E}{\partial w_i} = &\ \frac{1}{2}\sum_n \frac{dE^n}{dy^n}\frac{\partial y^n}{\partial w_i} \\
+	= & - \sum_n x_i^n (t^n-y^n)
+\end{split}
+\]
+\item The \textbf{batch} delta rule changes the weights in proportion to their error derivatives summed over all training cases
+\[
+	\Delta w_i = - \epsilon \frac{\partial E}{\partial w_i} = \sum_n \epsilon x_i^n (t^n-y^n)
+\]
+\end{enumerate}
+
+One thing to be notice here, we can get as close as we desire to the best answer by making the learning rate small enough
+
+Ok, since we have the simplest neuron, let's making things little interesting by adding the logistic function. And now, our model become this:
+\[
+\begin{split}
+z = &\ b + \sum_i w_i x_i\\
+y = &\ \frac{1}{1+e^{-z}}
+\end{split}
+\]
+their corresponding derivatives are 
+\[
+\begin{split}
+\frac{\partial z}{\partial w_i} = \ x_i  \,\text{,}&\, \frac{\partial z}{\partial x_i} = \ w_i \\
+\frac{dy}{dz} = &\ y(1-y)
+\end{split}
+\]
+Thus, take the derivative of $y$ with respect to $w_i$ is
+\[
+\frac{\partial y}{\partial w_i} = \frac{dy}{dz} \frac{\partial z}{\partial w_i} = x_i y (1-y)
+\]
+and 
+\[
+\frac{\partial E}{\partial w_i} = \sum \frac{\partial E}{\partial y^n} \frac{\partial y^n}{\partial w_i} = -\sum_n x_i^n y^n(1-y^n)(t^n-y^n)
+\]
+In this equation, the first and last terms come from the delta rule, and the term in the middle is the slope of logistic
+
+\Working
 
 \ItemTitle{lstm}{Long-Short Term Memory} \Working
 
-
+\ItemTitle{universal}{Universal Approximator} 
+Accroding to \citep{hornik1989multilayer}, Multilayer feedforward networks are universal approximators. Single hidden layer  feedforward networks can approximate any measurable function arbitrarily well regardless of the activation function $\Psi$, the dimension of the input space $r$, and the input space environment $\mu$
+\begin{enumerate}
+\item universal approximators: standard multilayer feedforward networks are capable of approximating
+any measurable function to any desired degree of accuracy
+\item there are no theoretical constraints for the success of
+feedforward networks
+\item lack of success is due to inadequate learning, insufficient number of hidden units or the lack of a deterministic relationship between input and target
+\item rate of convergence as the number of hidden units grows
+\item rate of increase of the number of hidden units as the input dimension increases for a fixed accuracy
+\end{enumerate}
 \bibliography{Learning}
 \end{document}
 
