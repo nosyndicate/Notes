@@ -16,7 +16,7 @@
 
 \clearpage 
 
-
+\newcommand{\lackcite}
 
 \ItemTitle{actorcritic}{Actor-Critic Method} \Working
 
@@ -298,13 +298,34 @@ Detail see \citep{singh2000convergence}.
 
 
 
-\ItemTitle{policygradient}{Policy Gradient Reinforcement Learning} Instead of determining the action based on value function, another method of determine the action to take is the direct policy search method. When we have a policy $\pi$, the way to evaluate the goodness of that policy is straightforward, we can just follow that policy several times, and take the average of the policy.
+\ItemTitle{policygradient}{Policy Gradient Reinforcement Learning} Instead of determining the action based on value function, another method of determine the action to take is the direct policy search method. It is well known that value-function combined with function approximation are unable to converge to any policy even for simple MDPs (in mean-squared-error, residual-gradient, temporal-difference, and dynamic-programming sense) \lackcite 
+
+Let \(\theta\) denote the parameters of the function approximator, neural network for example, and \(J(\theta)\) the performance of the corresponding policy (e.g. the average reward per step). Then in the policy gradient approach, we can update the policy parameters proportional to the gradient:
 \[
-	\begin{split}
-	J(\theta) = & E_{P(\tau|\theta)}[\Sigma_{t=0}^{H}\gamma^tR(s_t,u_t)|\pi_{\theta}]\\
-	= & \Sigma_{i=1}^m R()
-	\end{split}
+\Delta\theta = \alpha \frac{\partial J(\theta)}{\partial \theta}
 \]
+Let's begin with the definition of the two formulations:
+\begin{itemize}
+\item Average reward formulation\\
+\[
+J(\theta) = \lim_{n\rightarrow \infty} \frac{1}{n} E\{r_1 + r_2 + \ldots + r_n | \pi\} = \sum_s d^{\pi}(s) \sum_a \pi(s,a) R(s,a)
+\]
+where \(d^{\pi}(s)\) is the stationary distribution of the states induced by \(\pi\)
+\end{itemize}
+where \(\alpha\) is a positive-definite step size.
+
+
+
+
+ REINFORCE algorithm also finds an unbiased estimate of
+the gradient, but without the assistance of a learned value function. REINFORCE
+learns much more slowly than RL methods using value functions and has received
+relatively little attention. Learning a value function and using it to reduce the variance
+of the gradient estimate appears to be essential for rapid learning.
+
+
+
+
 
 \ItemTitle{pi}{Policy Iteration} \Working
 
