@@ -262,8 +262,50 @@ Markov Decision Process can be seen as a extension of Markov Chain with addition
 \item $d$ is real-valued, finite and nonnegative.
 \item $d(x,y) = 0$ if and only if $x=y$
 \item $d(x,y)$ = $d(y,x)$  (Symmetry)
-\item $d(x,y) \le d(x,z) + d(z,y)$   (Triangular)
+\item $d(x,y) \le d(x,z) + d(z,y)$   (Triangle inequality)
 \end{enumerate}
+
+In this definition, $X$ is called the underlying set of $(X,d)$. Its elements are called points. Here are some examples of metric space:
+\begin{itemize}
+\item Real line $\mathbb{R}$\\
+The set of all real numbers and $d(x,y) = |x-y|$
+\item Euclidean plane $\mathbb{R}^2$\\
+Suppose we have $x = (\epsilon_1,\epsilon_2)$ and $y = (\upsilon_1,\upsilon_2)$. The euclidean metric defined by 
+\[
+d(x,y) = \sqrt{(\epsilon_1-\upsilon_1)^2+(\epsilon_2-\upsilon_2)^2}
+\]
+\item Euclidean space $\mathbb{R}^n$\\
+If $x = (\epsilon_1,\ldots,\epsilon_n)$ and $y = (\upsilon_1,\ldots,\upsilon_n)$, then euclidean metric defined by 
+\[
+d(x,y) = \sqrt{(\epsilon_1-\upsilon_1)^2+\ldots+(\epsilon_n-\upsilon_n)^2}
+\]
+\item Unitary space $\mathbb{C}^n$\\
+a n-dimensional unitary space $\mathbb{C}^n$ is the space of all ordered n-tuples of complex numbers with distance function
+\[
+d(x,y) = \sqrt{|\epsilon_1-\upsilon_1|^2+\ldots+|\epsilon_n-\upsilon_n|^2}
+\]
+\item Sequence space $l^{\infty}$\\
+ This example and the next one give a first impression of how surprisingly the concept of a metric space is. As a set $X$ we take the set of all bounded sequences of complex numbers; that is, every element of $X$ is a complex sequence
+ \[
+ x = (\epsilon_1,\epsilon_2,\ldots) \quad \text{briefly} \quad  x = (\epsilon_j)
+ \]
+ such that for all $j=1,2,\ldots$ we have 
+\[
+|\epsilon_j|\le c_x
+\]
+where $c_x$ is a real number which may depend on $x$, but does not depend on $j$. We choose the metric defined by
+\[
+d(x,y) = \sup_{j \in \mathbb{N}}|\epsilon_j-\upsilon_j|
+\]
+where $y = (\upsilon_j) \in X$ and $\mathbb{N} = {1,2,\ldots}$, and sup denotes the supremum (least upper bound).
+ \item Function space $C[a,b]$\\
+ As a set $X$ we take the set of all real-valued functions $x,y,\ldots$ which are functions of an independent real variable $t$ and are defined and continuous on a given closed interval $J = [a.b]$. Choosing the metric defined by 
+ \[
+ d(x,y) = \max_{t\in J}|x(t)-y(t)|
+ \]
+ where max denotes the maximum, we obtain a metric space which is denoted by $C[a,b]$. (The letter $C$ suggests ``continuous.'') This is a function space because every point of $C[a,b]$ is a function.
+\end{itemize}
+\citep{Kreyszig1989Introductory}.
 
 
 
