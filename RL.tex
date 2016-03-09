@@ -365,8 +365,48 @@ learns much more slowly than RL methods using value functions and has received
 relatively little attention. Learning a value function and using it to reduce the variance
 of the gradient estimate appears to be essential for rapid learning.
 
-
-
+Likelihood Ratio Methods
+\[
+\begin{split}
+	J(\theta) = & E \big[r(\tau)\big] \\
+	= &\ \int_{\tau} p_{\theta}(\tau)\ r(\tau)\\
+	\nabla_{\theta} J(\theta) = & \nabla_{\theta} \int_{\tau} p_{\theta}(\tau)\ r(\tau)\\
+	= &\ \int_{\tau} \nabla_{\theta} p_{\theta}(\tau)\ r(\tau)\\
+	= &\ \int_{\tau} \nabla_{\theta} p_{\theta}(\tau)\ \frac{p_{\theta}(\tau)}{p_{\theta}(\tau)}\ r(\tau)\\
+	= &\ \int_{\tau} p_{\theta}(\tau)\ \frac{\nabla_{\theta} p_{\theta}(\tau)}{p_{\theta}(\tau)}\ r(\tau)\\
+	= &\ \int_{\tau} p_{\theta}(\tau)\ \nabla_{\theta} \ln p_{\theta}(\tau)\ r(\tau)\\
+	= &\ E \big[ \nabla_{\theta} \ln p_{\theta}(\tau)\ r(\tau) \big]
+\end{split}
+\]
+However, we know that
+\[
+p_{\theta}(\tau) = p(x_0) \prod_{k=0}^{H}p(x_{k+1}|x_k,u_k)\pi_{\theta}(u_k|x_k)
+\]
+Thus
+\[
+\begin{split}
+\nabla_{\theta} \ln p_{\theta}(\tau) = &\ \nabla_{\theta} \big[ \ln p(x_0) + \sum_{k=0}^{H} (\ln p(x_{k+1}|x_k,u_k) + \ln \pi_{\theta}(u_k|x_k))\big]\\
+= &\ \nabla_{\theta} \big[ \ln p(x_0) + \sum_{k=0}^{H} \ln p(x_{k+1}|x_k,u_k) + \sum_{k=0}^{H} \ln \pi_{\theta}(u_k|x_k)\big]\\
+= &\ \nabla_{\theta} \ln p(x_0) + \sum_{k=0}^{H} \nabla_{\theta} \ln p(x_{k+1}|x_k,u_k) + \sum_{k=0}^{H} \nabla_{\theta} \ln \pi_{\theta}(u_k|x_k)\\
+= &\ 0 + 0 + \sum_{k=0}^{H} \nabla_{\theta} \ln \pi_{\theta}(u_k|x_k)\\
+= &\ \sum_{k=0}^{H} \nabla_{\theta} \ln \pi_{\theta}(u_k|x_k)\\
+\end{split}
+\]
+Note, if instead of stochastic policy, we are using a deterministic policy, then we have 
+\[
+p_{\theta}(\tau) = p(x_0) \prod_{k=0}^{H}p(x_{k+1}|x_k,\pi_{\theta}(x_k))
+\]
+In this case, 
+\[
+\begin{split}
+\nabla_{\theta} \ln p_{\theta}(\tau) = &\ \nabla_{\theta} \big[ \ln p(x_0) + \sum_{k=0}^{H} \ln p(x_{k+1}|x_k,\pi_{\theta}(x_k))\big]\\
+= &\ \nabla_{\theta} \ln p(x_0) + \sum_{k=0}^{H} \nabla_{\theta} \ln p(x_{k+1}|x_k,\pi(x_k))\\
+= &\ \nabla_{\theta} \ln p(x_0) + \sum_{k=0}^{H} \nabla_{u_k} \ln p(x_{k+1}|x_k,u_k) \nabla_{\theta} \pi(x_k)\\
+= &\ 0 +  \sum_{k=0}^{H} \nabla_{u_k} \ln p(x_{k+1}|x_k,u_k) \nabla_{\theta} \pi(x_k)\\
+= &\ \sum_{k=0}^{H} \nabla_{u_k} \ln p(x_{k+1}|x_k,u_k) \nabla_{\theta} \pi(x_k)\\
+\end{split}
+\]
+Since we need to compute $\nabla_{u_k} \ln p(x_{k+1}|x_k,u_k)$, thus we need to know the model of the system
 
 
 \ItemTitle{pi}{Policy Iteration} \Working
@@ -382,6 +422,8 @@ Stochastic game can been seen as an extension of \Item{MDP}{MDP}.
 \ItemTitle{td}{Temporal Difference Method} 
 
 \ItemTitle{vi}{Value Iteration} 
+
+\ItemTitle{vs}{Vector Space}
 
 \bibliography{RL}
 \end{document}
