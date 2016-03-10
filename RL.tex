@@ -237,6 +237,13 @@ If a \textit{decay exploration} strategy has the following two characters:
 \end{enumerate}
 Than we can consider this decay exploration strategy GLIE. Some example of GLIE include \Item{boltzmannselection}{Boltzmann Selection}, \Item{epsilongreedy}{$\epsilon$-greedy}.
 
+\ItemTitle{IRL}{Inverse Reinforcement Learning} 
+Reason for using IRL instead of behavior cloning:
+\begin{itemize}
+\item Reward functions can generalize the expert's behavior to the state space regions not covered by the demonstration. For example, the transition model can change and thus, the optimal policy change as well. 
+\item behavioral cloning cannot be applied whenever the expert demonstrates actions that cannot be executed by the
+learner (think at a humanoid robot that learns by observing a human expert)
+\end{itemize}
 
 \ItemTitle{lipcon}{Lipschitz Continuity}  Given two metric space two norm (a function that assigns  a strictly positive length or size to each vector in a vector space)
 
