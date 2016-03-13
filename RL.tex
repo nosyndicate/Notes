@@ -116,6 +116,39 @@ Hence, $X_1=X_2$.
 Detail see \citep{conrad2014contraction}
 
 
+
+\ItemTitle{comfeature}{Compatible Feature} 
+If we are using Softmax Policy, which is 
+\[
+\pi(s,a) = \frac{e^{\phi(s,a)^{\top}\theta}}{\sum_{b}e^{\phi(s,b)^{\top}\theta}}
+\]
+if we have $p = e^{\phi(s,a)^{\top}\theta}$ and $q = \sum_{b}e^{\phi(s,b)^{\top}\theta}$, then $\pi(s,a) = p/q$
+\[
+\begin{split}
+\nabla_{\theta} \ln \pi(s,a) =\ & \frac{1}{\pi(s,a)} \frac{\partial \pi(s,a)}{\partial \theta}\\
+=\ & \frac{q}{p} \frac{\frac{\partial p}{\partial \theta} q - \frac{\partial q}{\partial \theta} p}{q^2}\\
+=\ & \frac{\frac{\partial p}{\partial \theta}}{p} - \frac{\frac{\partial q}{\partial \theta}}{q}\\
+=\ & \frac{e^{\phi(s,a)^{\top}\theta} \phi(s,a)}{e^{\phi(s,a)^{\top}\theta}} - \frac{\sum_{b} (e^{\phi(s,b)^{\top}\theta} \phi(s,b))}{\sum_{b}e^{\phi(s,b)^{\top}\theta}}\\
+=\ & \phi(s,a) - \sum_{b} \frac{e^{\phi(s,b)^{\top}\theta} \phi(s,b)}{\sum_{b}e^{\phi(s,b)^{\top}\theta}}\\
+=\ & \phi(s,a) - \sum_{b} \big[\frac{e^{\phi(s,b)^{\top}\theta}}{\sum_{b}e^{\phi(s,b)^{\top}\theta}} \phi(s,b)\big]\\
+=\ & \phi(s,a) - \sum_{b} \pi(s,b) \phi(s,b)\\
+\end{split}
+\]
+
+if we are using $d$-dimensional Gaussian Policy, suppose we fix the covariant matrix to $\mathbf{\Sigma} = c\mathbf{I}$, then our policy is 
+\[
+\pi(s,a) = \frac{1}{\sqrt{(2 \pi)^{d} |\Sigma|}} \exp\big\{ -\frac{1}{2} (a-\phi(s)^\top\theta)^\top\Sigma^{-1}(a-\phi(s)^\top\theta)\big\}
+\]
+the score function is 
+\[
+\begin{split}
+\nabla_{\theta} \ln \pi(s,a) =\ & \frac{1}{\pi(s,a)} \frac{\partial \pi(s,a)}{\partial \theta}\\
+=\ & \frac{\sqrt{(2 \pi)^d |\Sigma|}}{\exp\big \{ \ldots \big \}}  \frac{\exp\big \{ \ldots \big \}}{\sqrt{(2 \pi)^d |\Sigma|}} (-\frac{1}{2}) \big( \frac{\partial (a-\phi(s)^\top\theta)^\top\Sigma^{-1}(a-\phi(s)^\top\theta)}{\partial \theta}\big)\\
+=\ & -\Sigma^{-1} \big[a-\phi(s)^\top \theta \big] \phi(s) 
+=
+\end{split}
+\]
+
 \ItemTitle{policyefficiency}{Data Efficiency for Policy Gradient Method} In \Item{policy gradient}{policy gradient} method, when we try to evaluate the expected return of a policy $\pi$, we have to run the policy several time to be able to have reasonable estimation of how good the policy is. Let $J(\theta)$ denote the expected return of policy $\pi_{\theta}$, and $\tau$ denote the trajectory or rollout or history (these terms are interchangeable) of executing the policy $\pi_{\theta}$, then we know
 \[
 \begin{split}
@@ -363,9 +396,9 @@ where \(d^{\pi}(s)\) is the stationary distribution of the states induced by \(\
 \end{itemize}
 where \(\alpha\) is a positive-definite step size.
 
+\ItemTitle{pi}{Policy Iteration} \Working
 
-
-
+\ItemTitle{reinforce}{REINFORCE}
  REINFORCE algorithm also finds an unbiased estimate of
 the gradient, but without the assistance of a learned value function. REINFORCE
 learns much more slowly than RL methods using value functions and has received
@@ -416,7 +449,6 @@ In this case,
 Since we need to compute $\nabla_{u_k} \ln p(x_{k+1}|x_k,u_k)$, thus we need to know the model of the system
 
 
-\ItemTitle{pi}{Policy Iteration} \Working
 
 \ItemTitle{statdistribution}{Stationary Distribution}
 
