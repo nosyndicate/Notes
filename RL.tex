@@ -23,15 +23,15 @@
 \ItemTitle{bellmanequation}{Bellman Equation} Due to the Markov property of MDP, we can define the value function of a policy recursively to be 
 \begin{displaymath}
   \begin{split}
-    V^{\pi}(s) & = E_{\pi}\{R_t|s_t=s\}\\
-    & = E_{\pi}\{\sum_{k=0}^{\infty}{\gamma^{k}r_{t+k+1}}|s_t = s\}\\
-    & = E_{\pi}\{r_{t+1}+\gamma \sum_{k=0}^{\infty}{\gamma^{k}r_{t+k+2}}|s_t = s\}\\
+    V^{\pi}(s) & = \E_{\pi}\{R_t|s_t=s\}\\
+    & = \E_{\pi}\{\sum_{k=0}^{\infty}{\gamma^{k}r_{t+k+1}}|s_t = s\}\\
+    & = \E_{\pi}\{r_{t+1}+\gamma \sum_{k=0}^{\infty}{\gamma^{k}r_{t+k+2}}|s_t = s\}\\
   \end{split}
 \end{displaymath}
 If policy is stochastic, then we have
 \begin{displaymath}
   \begin{split}
-    V^{\pi}(s) & = \sum_{a}\pi(s,a)\sum_{s'}\Pr(s'|s,a)\big[R(s,a)+\gamma E_{\pi}\{\sum_{k=0}^{\infty}\gamma^{k}r_{t+k+2}|s_{t+1}=s'\}\big]\\
+    V^{\pi}(s) & = \sum_{a}\pi(s,a)\sum_{s'}\Pr(s'|s,a)\big[R(s,a)+\gamma \E_{\pi}\{\sum_{k=0}^{\infty}\gamma^{k}r_{t+k+2}|s_{t+1}=s'\}\big]\\
     & = \sum_{a}\pi(s,a)\sum_{s'}\Pr(s'|s,a)\big[R(s,a)+\gamma V^{\pi}(s')\big]\\
     & = \sum_{a}\pi(s,a)\{R(s,a)+\sum_{s'}\Pr(s'|s,a)\gamma V^{\pi}(s')\}
   \end{split}
@@ -152,7 +152,7 @@ the score function is
 \ItemTitle{policyefficiency}{Data Efficiency for Policy Gradient Method} In \Item{policy gradient}{policy gradient} method, when we try to evaluate the expected return of a policy $\pi$, we have to run the policy several time to be able to have reasonable estimation of how good the policy is. Let $J(\theta)$ denote the expected return of policy $\pi_{\theta}$, and $\tau$ denote the trajectory or rollout or history (these terms are interchangeable) of executing the policy $\pi_{\theta}$, then we know
 \[
 \begin{split}
-J(\theta) = & E_{P(\tau;\theta)}[\Sigma_{t=0}^{H}\gamma^tR(s_t,u_t)|\pi_{\theta}]\\
+J(\theta) = & \E_{P(\tau;\theta)}[\Sigma_{t=0}^{H}\gamma^tR(s_t,u_t)|\pi_{\theta}]\\
 = & \Sigma_{\tau}P(\tau;\theta)R(\tau)
 \end{split}
 \]
@@ -172,7 +172,7 @@ need to figure why can we ignore the dynamic model
 J(\theta) = & \sum_{\tau}P(\tau;\theta)R(\tau)\\
 = & \sum_{\tau}P(\tau;\theta) \frac{P(\tau';\theta')}{P(\tau';\theta')} R(\tau)\\
 = & \sum_{\tau}P(\tau';\theta') \frac{P(\tau;\theta)}{P(\tau';\theta')} R(\tau)\\
-= & E_{\tau'}[\frac{P(\tau;\theta)}{P(\tau';\theta')} R(\tau)]
+= & \E_{\tau'}[\frac{P(\tau;\theta)}{P(\tau';\theta')} R(\tau)]
 \end{split}
 \]
 Now, we can estimate the $J(\theta)$ with respect to the the distribution induced by $\pi_{\theta'}$. This method of estimating one expectation with respect to another distribution is called `'importance sampling''. So, we can rewrite the $\hat{J(\theta)}$ as
@@ -285,6 +285,56 @@ Given two metric spaces (X, dX) and (Y, dY), where dX denotes the metric on the 
 % d_Y(f(x_1), f(x_2)) \le K d_X(x_1, x_2).
 \citep{Eriksson2013Applied}
 
+\ItemTitle{lqr}{Linear Quadratic Regulator} When we consider a special system with linear dynamic and quadratic cost, we have some very nice algorithm so solve this questions.
+\[
+\begin{split}
+	x_{t+1} = &\ A_{t}x_{t} + B_tu_t + w_t    \quad \text{for} \quad t = 0,1,\ldots,N-1\\
+	C(x_t,u_t) = &\ x_t^{\top}Q_tx_t + u_t^{\top}R_tu_t
+\end{split}
+\]
+In the equation above, $x_t$ are the state with $n$-dimension, and $u_t$ are the control (action) with $m$-dimension. $A_t$, $B_t$, $Q_t$, $R_t$ are given and have appropriate dimension. $Q_t$ are positive semidefinite symmetric and $R_t$ are positive definite symmetric. $w_t$ is the noise term with given probability distributions that do not depend on $x_t$ ad $u_t$. It also has zero mean and finite variance.
+
+The reason for use this kind of control is that we want to keep the state of the system close to the origin. The quadratic cost function will induce heavy penalty if the system is largely deviate from the it. 
+So now we apply Dynamic Programming algorithm to it. First, we have the cost-to-go function of the last state $N$ and other states.
+\[
+\begin{split}
+J_N(x_N) = &\ x_N^{\top}Q_Nx_N\\
+J_t(x_t) = &\ \min_{u_k} \mathbb{E}\big\{ x_t^{\top}Q_tx_t + u_t^{\top}R_tu_t + J_{t+1}(A_tx_t + B_tu_t+w_t)\big\}
+\end{split}
+\]
+We can replace the $t$ with $N-1$, then we have 
+\[
+\begin{split}
+J_{N-1}(x_{N-1}) =\ \min_{u_{N-1}} \mathbb{E}\big\{ & x_{N-1}^{\top}Q_{N-1}x_{N-1} + u_{N-1}^{\top}R_{N-1}u_{N-1}\\
+ + &(A_{N-1}x_{N-1} + B_{N-1}u_{N-1}+w_{N-1})^{\top}Q_N(A_{N-1}x_{N-1} + B_{N-1}u_{N-1}+w_{N-1})\big\}
+\end{split}
+\]
+Next, we expand the term inside square brackets.
+\[
+\begin{split}
+J_{N-1}(x_{N-1}) = &\  x_{N-1}^{\top}Q_{N-1}x_{N-1} + \min_{u_{N-1}} \big[ u_{N-1}^{\top}R_{N-1}u_{N-1} + u_{N-1}^{\top}B_{N-1}^{\top}Q_NB_{N-1}u_{N-1}\\
+ +&\ 2x_{N-1}^{\top}A_{N-1}^{\top}Q_NB_{N-1}u_{N-1}\big] + x_{N-1}^{\top}A_{N-1}^{\top}Q_NA_{N-1}x_{N-1} + \E\big\{ w_{N-1}^{\top}Q_Nw_{N-1}\big\}
+\end{split}
+\]
+Several things to note here. First, some of the terms does not depend on $u_{N-1}$, thus we move them out of the minimization operator. Second, $\E\{w_{N-1}\} = 0$ suggests that $\E\{w_{N-1}^{\top}Q_N(A_{N-1}x_{N-1} + B_{N-1}u_{N-1})\}$ is also zero.
+Third, we reverse the position of some terms due to the transpose. If we differentiate the equation with respect to $u_{N-1}$ and set the derivative to zero, we get 
+\[
+(R_{N-1}+B_{N-1}^{\top}Q_NB_{N-1})u_{N-1} =\ -B_{N-1}^{\top}Q_NA_{N-1}x_{N-1}
+\]
+Since $R_{N-1}$ is positive definite and $B_{N-1}^{\top}Q_{N-1}B_{N-1}$ is positive semidefinite, matrix multiplying $u_{N-1}$ on the left is positive definite (and hence invertible). Thus, the minimizing control vector is given by
+\[
+u_{N-1}^{*} =\ -(R_{N-1}+B_{N-1}^{\top}Q_NB_{N-1})^{-1}B_{N-1}^{\top}Q_NA_{N-1}x_{N-1}
+\] 
+By substitution into the expression for $J_{N-1}$, we have 
+\[
+J_{N-1}(x_{N-1}) = x_{N-1}^{\top}K_{N-1}x_{N-1} + \E\big\{w_{N-1}^{\top}Q_Nw_{N-1}\big\}
+\]
+and matrix $K_{N-1}$ should be
+\[
+K_{N-1} = A_{N-1}^{\top}(Q_N-Q_NB_{N-1}(B_{N-1}^{\top}Q_NB_{N-1}+R_{N-1})^{-1}B_{N-1}^{\top}Q_N)A_{N-1}+Q_{N-1}
+\]
+
+
 \ItemTitle{lstd}{LSTD} \Working
 
 Related paper
@@ -353,7 +403,7 @@ where $y = (\upsilon_j) \in X$ and $\mathbb{N} = {1,2,\ldots}$, and sup denotes 
 
 As we know, the value of being in a state $s$ is the expectation of the discounted rewards received afterwards. 
 \[
-V^{\pi}(s) = E_{\pi}[r_{t+1} + \gamma r_{t+2} + \ldots + \gamma^{T-1}r_T]
+V^{\pi}(s) = \E_{\pi}[r_{t+1} + \gamma r_{t+2} + \ldots + \gamma^{T-1}r_T]
 \]
 
 two methods can be used here : first-visit and every-visit method
