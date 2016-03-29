@@ -149,44 +149,6 @@ the score function is
 \end{split}
 \]
 
-\ItemTitle{policyefficiency}{Data Efficiency for Policy Gradient Method} In \Item{policy gradient}{policy gradient} method, when we try to evaluate the expected return of a policy $\pi$, we have to run the policy several time to be able to have reasonable estimation of how good the policy is. Let $J(\theta)$ denote the expected return of policy $\pi_{\theta}$, and $\tau$ denote the trajectory or rollout or history (these terms are interchangeable) of executing the policy $\pi_{\theta}$, then we know
-\[
-\begin{split}
-J(\theta) = & \E_{P(\tau;\theta)}[\Sigma_{t=0}^{H}\gamma^tR(s_t,u_t)|\pi_{\theta}]\\
-= & \Sigma_{\tau}P(\tau;\theta)R(\tau)
-\end{split}
-\]
-where $P(\tau;\theta)$ is the probability of having a trajectory $\tau$ by following policy $\pi_{\theta}$ and $R(\tau)$ is just the accumulated reward of that trajectory. 
-In \Item{policy gradient}{policy gradient} method, after we evaluate the policy $\pi_{\theta}$, we may want to improve it and use a new policy. Thus, the sample we collected during the process of following policy $\pi_{\theta}$ are discarded. However, it will preferable if we can reuse the data gathered of following one policy to estimate the value of following another policy. The method ``likelihood ratio'' estimation make this data reuse possible.
-
-In practice, if we want to evaluate $J(\theta)$, we may want to draw the rollout samples from the distribution induced by policy $\pi_{\theta}$. After taking $N$ samples $\{\tau_0,\tau_1,\ldots,\tau_N\}$, we have a unbiased estimator:
-\[
-	\hat{J(\theta)} = \frac{1}{N}\sum_{i}R(\tau_i)
-\]
-Imagine, however, instead of $\pi_{\theta}$, we only have $\pi_{\theta'}$ available, we can do some trick like this
-\begin{comment}
-need to figure why can we ignore the dynamic model
-\end{comment}
-\[
-\begin{split}
-J(\theta) = & \sum_{\tau}P(\tau;\theta)R(\tau)\\
-= & \sum_{\tau}P(\tau;\theta) \frac{P(\tau';\theta')}{P(\tau';\theta')} R(\tau)\\
-= & \sum_{\tau}P(\tau';\theta') \frac{P(\tau;\theta)}{P(\tau';\theta')} R(\tau)\\
-= & \E_{\tau'}[\frac{P(\tau;\theta)}{P(\tau';\theta')} R(\tau)]
-\end{split}
-\]
-Now, we can estimate the $J(\theta)$ with respect to the the distribution induced by $\pi_{\theta'}$. This method of estimating one expectation with respect to another distribution is called `'importance sampling''. So, we can rewrite the $\hat{J(\theta)}$ as
-\[
-\hat{J(\theta)} = \frac{1}{N}\sum_{i}R(\tau_i)\frac{P(\tau;\theta)}{P(\tau';\theta')}
-\]
-Note, in the equation above, we have a term $\frac{P(\tau;\theta)}{P(\tau';\theta')}$. Since we don't have the model of the world, it's not possible to directly compute $P(\tau;\theta)$. But if we expand the fraction term, we can see that 
-\[
-\begin{split}
-\frac{P(\tau;\theta)}{P(\tau';\theta')} = & \frac{\Pi_{t=0}^T\pi_{\theta}(u_t|s_t)}{\Pi_{t=0}^T\pi_{\theta'}(u_t|s_t)}\\
-\end{split}
-\]
-Thus, we should be able to calculate the likelihood $\frac{P(\tau;\theta)}{P(\tau';\theta')}$ for any two policies $\theta$
- and $\theta'$. Actually, we can have a mixture distributions, where $P(\tau;\theta)$ is replaced by $\frac{1}{N}\sum_jP(\tau_j|\theta_j)$ where $\tau_j$ are trajectory of following $\theta_j$, then we can make use of multiple source of distributions.
 
 
 \ItemTitle{epsilongreedy}{\texorpdfstring{$\epsilon$}--greedy}
@@ -299,13 +261,13 @@ So now we apply Dynamic Programming algorithm to it. First, we have the cost-to-
 \[
 \begin{split}
 J_N(x_N) = &\ x_N^{\top}Q_Nx_N\\
-J_t(x_t) = &\ \min_{u_k} \mathbb{E}\big\{ x_t^{\top}Q_tx_t + u_t^{\top}R_tu_t + J_{t+1}(A_tx_t + B_tu_t+w_t)\big\}
+J_t(x_t) = &\ \min_{u_k} \E \big\{ x_t^{\top}Q_tx_t + u_t^{\top}R_tu_t + J_{t+1}(A_tx_t + B_tu_t+w_t)\big\}
 \end{split}
 \]
 We can replace the $t$ with $N-1$, then we have 
 \[
 \begin{split}
-J_{N-1}(x_{N-1}) =\ \min_{u_{N-1}} \mathbb{E}\big\{ & x_{N-1}^{\top}Q_{N-1}x_{N-1} + u_{N-1}^{\top}R_{N-1}u_{N-1}\\
+J_{N-1}(x_{N-1}) =\ \min_{u_{N-1}} \E \big\{ & x_{N-1}^{\top}Q_{N-1}x_{N-1} + u_{N-1}^{\top}R_{N-1}u_{N-1}\\
  + &(A_{N-1}x_{N-1} + B_{N-1}u_{N-1}+w_{N-1})^{\top}Q_N(A_{N-1}x_{N-1} + B_{N-1}u_{N-1}+w_{N-1})\big\}
 \end{split}
 \]
@@ -339,6 +301,7 @@ K_{N-1} = A_{N-1}^{\top}(Q_N-Q_NB_{N-1}(B_{N-1}^{\top}Q_NB_{N-1}+R_{N-1})^{-1}B_
 
 Related paper
 
+\ItemTitle{lspi}{LSPI} \Working
 
 \ItemTitle{MDP}{Markov Decision Process}
 blah blah here
@@ -408,6 +371,47 @@ V^{\pi}(s) = \E_{\pi}[r_{t+1} + \gamma r_{t+2} + \ldots + \gamma^{T-1}r_T]
 
 two methods can be used here : first-visit and every-visit method
 
+\ItemTitle{offpolicygradient}{Off-Policy Policy Gradient Method} In \Item{reinforce}{REINFORCE} method, when we try to evaluate the expected return of a policy $\pi$, we have to run the policy several time to be able to have reasonable estimation of how good the policy is. Let $J(\theta)$ denote the expected return of policy $\pi_{\theta}$, and $\tau$ denote the trajectory (essentially a state-action sequence : $s_0, a_0, s_1, a_1, \ldots, s_T, a_T$) or rollout or history (these terms are interchangeable) of executing the policy $\pi_{\theta}$, then we know
+\[
+\begin{split}
+J(\theta) = & \E_{\pi_{\theta}}\big[\sum{t=0}^{H}\gamma^tR(s_t,u_t)|\pi_{\theta}\big]\\
+= & \sum_{\tau}P(\tau|\theta)R(\tau)
+\end{split}
+\]
+where $P(\tau|\theta)$ is the probability of having a trajectory $\tau$ by following policy $\pi_{\theta}$ and $R(\tau)$ is just the accumulated reward of that trajectory. 
+In \Item{policy gradient}{policy gradient} method, after we evaluate the policy $\pi_{\theta}$, we may want to improve it and use a new policy. Thus, the sample we collected during the process of following policy $\pi_{\theta}$ are discarded. However, it will preferable if we can reuse the data gathered of following one policy to estimate the value of following another policy. The method ``likelihood ratio'' estimation make this data reuse possible.
+
+In practice, if we want to evaluate $J(\theta)$, we may want to draw the rollout samples from the distribution induced by policy $\pi_{\theta}$. After taking $N$ samples $\{\tau_0,\tau_1,\ldots,\tau_N\}$, we have a unbiased estimator:
+\[
+	\hat{J(\theta)} = \frac{1}{N}\sum_{i}R(\tau_i)
+\]
+Imagine, however, instead of $\pi_{\theta}$, we only have $\pi_{\theta'}$ available, we can do some trick like this
+\begin{comment}
+need to figure why can we ignore the dynamic model
+\end{comment}
+\[
+\begin{split}
+J(\theta) = & \sum_{\tau}P(\tau|\theta)R(\tau)\\
+= & \sum_{\tau}P(\tau|\theta) \frac{P(\tau|\theta')}{P(\tau|\theta')} R(\tau)\\
+= & \sum_{\tau}P(\tau|\theta') \frac{P(\tau|\theta)}{P(\tau|\theta')} R(\tau)\\
+= & \E_{\pi_{\theta'}}\big[\frac{P(\tau|\theta)}{P(\tau|\theta')} R(\tau)\big]
+\end{split}
+\]
+Note that, $P(\tau|\theta)$ and $P(\tau|\theta')$ is the probability of same sample $\tau$ under different distribution defined by $\theta$ and $\theta'$. Now, we can estimate the $J(\theta)$ with respect to the the distribution induced by $\pi_{\theta'}$. This method of estimating one expectation with respect to another distribution is called `'importance sampling''. So, we can rewrite the $\hat{J(\theta)}$ as
+\[
+\hat{J(\theta)} = \frac{1}{N}\sum_{i}R(\tau_i)\frac{P(\tau|\theta)}{P(\tau|\theta')}
+\]
+Note, in the equation above, we have a term $\frac{P(\tau|\theta)}{P(\tau|\theta')}$. Since we don't have the model of the world, it's not possible to directly compute $P(\tau|\theta)$ or $P(\tau|\theta')$. But if we expand the fraction term, we can see that 
+\[
+\begin{split}
+\frac{P(\tau|\theta)}{P(\tau|\theta')} = & \frac{P(s_0)\prod_{t=0}^T\big[P(s_{t+1}|s_t,a_t)P(a_t|s_t, \theta)\big]}{P(s_0)\prod_{t=0}^T\big[P(s_{t+1}|s_t,a_t)P(a_t|s_t,\theta')\big]}\\
+= &  \frac{P(s_0)\prod_{t=0}^TP(s_{t+1}|s_t,a_t)\prod_{t=0}^TP(a_t|s_t, \theta)}{P(s_0)\prod_{t=0}^TP(s_{t+1}|s_t,a_t)\prod_{t=0}^TP(a_t|s_t,\theta')}\\
+= & \frac{\prod_{t=0}^TP_{\theta}(a_t|s_t)}{\prod_{t=0}^TP_{\theta'}(a_t|s_t)}\\
+= & \frac{\prod_{t=0}^T\pi_{\theta}(a_t|s_t)}{\prod_{t=0}^T\pi_{\theta'}(a_t|s_t)}\\
+\end{split}
+\]
+Thus, we should be able to calculate the likelihood $\frac{P(\tau|\theta)}{P(\tau|\theta')}$ for any two policies $\theta$
+ and $\theta'$. Actually, we can have a mixture distributions, where $P(\tau|\theta)$ is replaced by $\frac{1}{N}\sum_jP(\tau_j|\theta_j)$ where $\tau_j$ are trajectory of following $\theta_j$, then we can make use of multiple source of distributions.
 
 
 \ItemTitle{onoffpolicy}{On-policy and Off-policy}
@@ -440,7 +444,7 @@ Let's begin with the definition of the two formulations:
 \begin{itemize}
 \item Average reward formulation\\
 \[
-J(\theta) = \lim_{n\rightarrow \infty} \frac{1}{n} E\{r_1 + r_2 + \ldots + r_n | \pi\} = \sum_s d^{\pi}(s) \sum_a \pi(s,a) R(s,a)
+J(\theta) = \lim_{n\rightarrow \infty} \frac{1}{n} \E\{r_1 + r_2 + \ldots + r_n | \pi\} = \sum_s d^{\pi}(s) \sum_a \pi(s,a) R(s,a)
 \]
 where \(d^{\pi}(s)\) is the stationary distribution of the states induced by \(\pi\)
 \end{itemize}
@@ -458,14 +462,14 @@ of the gradient estimate appears to be essential for rapid learning.
 Likelihood Ratio Methods
 \[
 \begin{split}
-	J(\theta) = & E \big[r(\tau)\big] \\
+	J(\theta) = & \E \big[r(\tau)\big] \\
 	= &\ \int_{\tau} p_{\theta}(\tau)\ r(\tau)\\
 	\nabla_{\theta} J(\theta) = & \nabla_{\theta} \int_{\tau} p_{\theta}(\tau)\ r(\tau)\\
 	= &\ \int_{\tau} \nabla_{\theta} p_{\theta}(\tau)\ r(\tau)\\
 	= &\ \int_{\tau} \nabla_{\theta} p_{\theta}(\tau)\ \frac{p_{\theta}(\tau)}{p_{\theta}(\tau)}\ r(\tau)\\
 	= &\ \int_{\tau} p_{\theta}(\tau)\ \frac{\nabla_{\theta} p_{\theta}(\tau)}{p_{\theta}(\tau)}\ r(\tau)\\
 	= &\ \int_{\tau} p_{\theta}(\tau)\ \nabla_{\theta} \ln p_{\theta}(\tau)\ r(\tau)\\
-	= &\ E \big[ \nabla_{\theta} \ln p_{\theta}(\tau)\ r(\tau) \big]
+	= &\ \E \big[ \nabla_{\theta} \ln p_{\theta}(\tau)\ r(\tau) \big]
 \end{split}
 \]
 However, we know that
@@ -490,8 +494,8 @@ In this case,
 \[
 \begin{split}
 \nabla_{\theta} \ln p_{\theta}(\tau) = &\ \nabla_{\theta} \big[ \ln p(x_0) + \sum_{k=0}^{H} \ln p(x_{k+1}|x_k,\pi_{\theta}(x_k))\big]\\
-= &\ \nabla_{\theta} \ln p(x_0) + \sum_{k=0}^{H} \nabla_{\theta} \ln p(x_{k+1}|x_k,\pi(x_k))\\
-= &\ \nabla_{\theta} \ln p(x_0) + \sum_{k=0}^{H} \nabla_{u_k} \ln p(x_{k+1}|x_k,u_k) \nabla_{\theta} \pi(x_k)\\
+= &\ \nabla_{\theta} \ln p(x_0) + \sum_{k=0}^{H} \nabla_{\theta} \ln p(x_{k+1}|x_k,\pi_{\theta}(x_k))\\
+= &\ \nabla_{\theta} \ln p(x_0) + \sum_{k=0}^{H} \nabla_{u_k} \ln p(x_{k+1}|x_k,u_k) \nabla_{\theta} \pi_{\theta}(x_k)\\
 = &\ 0 +  \sum_{k=0}^{H} \nabla_{u_k} \ln p(x_{k+1}|x_k,u_k) \nabla_{\theta} \pi(x_k)\\
 = &\ \sum_{k=0}^{H} \nabla_{u_k} \ln p(x_{k+1}|x_k,u_k) \nabla_{\theta} \pi(x_k)\\
 \end{split}
