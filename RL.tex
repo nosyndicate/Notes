@@ -401,17 +401,17 @@ Note that, $P(\tau|\theta)$ and $P(\tau|\theta')$ is the probability of same sam
 \[
 \hat{J(\theta)} = \frac{1}{N}\sum_{i}R(\tau_i)\frac{P(\tau|\theta)}{P(\tau|\theta')}
 \]
-Note, in the equation above, we have a term $\frac{P(\tau|\theta)}{P(\tau|\theta')}$. Since we don't have the model of the world, it's not possible to directly compute $P(\tau|\theta)$ or $P(\tau|\theta')$. But if we expand the fraction term, we can see that 
+Note, in the equation above, we have a term $\frac{P(\tau|\theta)}{P(\tau|\theta')}$. Since we don't have the model of the world, it's not possible to directly compute $P(\tau|\theta)$ or $P(\tau|\theta')$. But if we expand the fraction term (note that $P(\tau|\theta)$ and $P(\tau|\theta')$ both evaluate on the same trajectory sample $\tau$, therefore the state action sequence is same for both), we can see that 
 \[
 \begin{split}
-\frac{P(\tau|\theta)}{P(\tau|\theta')} = & \frac{P(s_0)\prod_{t=0}^T\big[P(s_{t+1}|s_t,a_t)P(a_t|s_t, \theta)\big]}{P(s_0)\prod_{t=0}^T\big[P(s_{t+1}|s_t,a_t)P(a_t|s_t,\theta')\big]}\\
-= &  \frac{P(s_0)\prod_{t=0}^TP(s_{t+1}|s_t,a_t)\prod_{t=0}^TP(a_t|s_t, \theta)}{P(s_0)\prod_{t=0}^TP(s_{t+1}|s_t,a_t)\prod_{t=0}^TP(a_t|s_t,\theta')}\\
-= & \frac{\prod_{t=0}^TP_{\theta}(a_t|s_t)}{\prod_{t=0}^TP_{\theta'}(a_t|s_t)}\\
-= & \frac{\prod_{t=0}^T\pi_{\theta}(a_t|s_t)}{\prod_{t=0}^T\pi_{\theta'}(a_t|s_t)}\\
+\frac{P(\tau|\theta)}{P(\tau|\theta')} = &\ \frac{P(s_0)\prod_{t=0}^T\big[P(s_{t+1}|s_t,a_t)P(a_t|s_t, \theta)\big]}{P(s_0)\prod_{t=0}^T\big[P(s_{t+1}|s_t,a_t)P(a_t|s_t,\theta')\big]}\\
+= &\ \frac{P(s_0)\prod_{t=0}^TP(s_{t+1}|s_t,a_t)\prod_{t=0}^TP(a_t|s_t, \theta)}{P(s_0)\prod_{t=0}^TP(s_{t+1}|s_t,a_t)\prod_{t=0}^TP(a_t|s_t,\theta')}\\
+= &\ \frac{\prod_{t=0}^TP(a_t|s_t,\theta)}{\prod_{t=0}^TP(a_t|s_t,\theta')}\\
+= &\ \frac{\prod_{t=0}^T\pi_{\theta}(a_t|s_t)}{\prod_{t=0}^T\pi_{\theta'}(a_t|s_t)}\\
 \end{split}
 \]
 Thus, we should be able to calculate the likelihood $\frac{P(\tau|\theta)}{P(\tau|\theta')}$ for any two policies $\theta$
- and $\theta'$. Actually, we can have a mixture distributions, where $P(\tau|\theta)$ is replaced by $\frac{1}{N}\sum_jP(\tau_j|\theta_j)$ where $\tau_j$ are trajectory of following $\theta_j$, then we can make use of multiple source of distributions.
+ and $\theta'$. Actually, we can have a mixture distributions, where $P(\tau|\theta')$ is replaced by $\frac{1}{N}\sum_jP(\tau_j|\theta_j)$ where $\tau_j$ are trajectory of following $\theta_j$, then we can make use of multiple source of distributions.
 
 
 \ItemTitle{onoffpolicy}{On-policy and Off-policy}
@@ -449,6 +449,9 @@ J(\theta) = \lim_{n\rightarrow \infty} \frac{1}{n} \E\{r_1 + r_2 + \ldots + r_n 
 where \(d^{\pi}(s)\) is the stationary distribution of the states induced by \(\pi\)
 \end{itemize}
 where \(\alpha\) is a positive-definite step size.
+
+\ItemTitle{pgt}{Policy Gradient Theorem} 
+Using the same notation in \Item{policygradient}{Policy Gradient}, 
 
 \ItemTitle{pi}{Policy Iteration} \Working
 
