@@ -1,0 +1,41 @@
+\documentclass[9pt]{article}
+
+\usepackage{notes}
+
+\setcitestyle{authoryear}
+
+\begin{document}
+\title{Notes on Introductory Functional Analysis with Applications}
+\author{Ermo Wei}
+\date{}
+
+\maketitle
+
+\tableofcontents
+\hypersetup{colorlinks=blue}
+
+\clearpage 
+
+\ItemTitle{metrics}{Metric Space} A \textit{metric space} is a pair \( (X,d)\), where \(X\) is a set and \(d\) is a metric on \(X\) (or distance function on \(X\)), that is, a function defined on \(X \times X\)\footnote{The symbol \(\times\) denotes the \textit{Cartesian product} of sets: \(A\times B\) is the set of all ordered pairs \( (a,b)\), where \(a \in A\) and \(b \in B\). Hence \(X\times X\) is the set of all ordered pairs of elements of \(X\).} such that for all \(x,y,z \in X\) we have:
+\begin{itemize}
+\item \(d\) is real-valued, finite and nonnegative.
+\item \(d(x,y) = 0\) if and only if  \(x=y\)
+\item \(d(x,y)=d(y,x)\) \qquad (Symmetry)
+\item \(d(x,y) \le d(x,z) + d(z,y)\) \qquad (Triangle inequality)
+\end{itemize}
+
+\(X\) is usually called the \textit{underlying set} of \((X,d)\). Its elements are called \textit{points}.
+
+Examples of metric spaces:
+\begin{itemize}
+\item \textbf{Real line \(R\)} with \(d(x,y) = |x-y|\)
+\item \textbf{Euclidean plane \(R^2\)} 
+\item \textbf{Three-dimensional Euclidean space \(R^3\)} 
+\item \textbf{Euclidean space \(R^n\)} 
+\item \textbf{Sequence space \(l^\infty\)} where each element of \(X\) (each point of \(X\)) is a sequence
+\end{itemize}
+\end{document}
+
+
+
+
