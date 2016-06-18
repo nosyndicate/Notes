@@ -28,14 +28,21 @@
 
 
 % command for add the item to the table of content, each item is a section
-\newcommand{\ItemTitle}[2]{\hypertarget{#1}{\section{#2}}}
+% \newcommand{\ItemTitle}[2]{\hypertarget{#1}{\section{#2}}}
 
 % deprecated method
 %\newcommand{\ItemTitle}[2]{\hypertarget{#1}{\addcontentsline{toc}{section}{#2}\section*{#2}}} 
 
-\newcommand{\Item}[2]{\hyperlink{#1}{#2}} % short command for making the hyperlink
+% instead of using the command, we use the environment for easy text processing
+% define the environment of item for easy use
+\newenvironment{topic}[2]
+{\hypertarget{#1}{\section{#2}}}
+{}
 
-\newcommand{\Working}{Still working on it \dots} % short command for the ``working'' text
+%\newcommand{\Item}[2]{\hyperlink{#1}{#2}} % short command for making the hyperlink
+\newcommand{\linktopic}[2]{\hyperlink{#1}{#2}} % short command for making the hyperlink
+
+\newcommand{\Working}{Need more time to work on it \dots} % short command for the ``working'' text
 
 
 
@@ -80,6 +87,9 @@
 % bold matrix symbol
 \newcommand{\matr}[1]{\mathbf{#1}}
 \DeclareMathOperator{\E}{\mathbb{E}}
+
+
+
 
 
 \endinput

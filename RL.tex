@@ -18,9 +18,98 @@
 
 \newcommand{\lackcite}
 
-\ItemTitle{actorcritic}{Actor-Critic Method} \Working
+\begin{topic}{activation}{Activation Function} 
+Activation Function are important for neural network to have non-linearity. The commonly used activation function are summarize below. Most of them are typically combined with an affine transformation $\matr{a} = \matr{b} + \matr{W}\matr{x}$ and applied element-wise.
+\[
+	\matr{h} = f(\matr{a}) \rightarrow h_i = f(a_i) = f(b_i + \matr{W_{i,:}} *\matr{x})
+\]
+\begin{itemize}
+\item Sigmoid\\
+\[
+f(a) = \frac{1}{1+e^{-a}}
+\]
+\item Hyperbolic tangent
+\[
+f(a) = \tanh(a)
+\]
+\item Softmax
+\item Rectifier or rectified linear unit (ReLU)
+\[
+f(a) = \max(0,a)
+\]
+\item Maxout
+\item Softplus\\
+A smooth version of the rectifier, basically the same shape. But this function has differentiability and non-zero derivative everywhere.
+\[
+f(a) = \log(1+e^a)
+\]
+\end{itemize}
+\end{topic}
 
-\ItemTitle{bellmanequation}{Bellman Equation} Due to the Markov property of MDP, we can define the value function of a policy recursively to be 
+\begin{topic}{actorcritic}{Actor-Critic Method}
+\Working
+\end{topic}
+
+\begin{topic}{bp}{Back Propagation}
+Let's start with linear neurons (also called linear filters). Here we first make two assumptions:
+\begin{itemize}
+\item The neuron has a real- valued output which is a weighted sum of its inputs
+\item The aim of learning is to minimize the square error summed over all training cases.
+\end{itemize}  
+The model of the linear neuron is like this :
+\[
+y = \sum w_i x_i = \matr{w}^T\matr{x}
+\]
+Since we are dealing with a simple linear neuron, we first derive the special case of back propagation algorithm, called \textit{delta rule}, which is a gradient descent learning rule for updating the weights of single layer neural network.
+\begin{enumerate}
+\item We first define the error of our training cases:
+\[
+	E = \frac{1}{2} \sum_{n \in \text{training set}} (t^n-y^n)^2
+\]
+\item Now we take the derivative of the error with respect to the weights
+\[
+\begin{split}
+	\frac{\partial E}{\partial w_i} = &\ \frac{1}{2}\sum_n \frac{dE^n}{dy^n}\frac{\partial y^n}{\partial w_i} \\
+	= & - \sum_n x_i^n (t^n-y^n)
+\end{split}
+\]
+\item The \textbf{batch} delta rule changes the weights in proportion to their error derivatives summed over all training cases
+\[
+	\Delta w_i = - \epsilon \frac{\partial E}{\partial w_i} = \sum_n \epsilon x_i^n (t^n-y^n)
+\]
+\end{enumerate}
+
+One thing to be notice here, we can get as close as we desire to the best answer by making the learning rate small enough
+
+Ok, since we have the simplest neuron, let's making things little interesting by adding the logistic function. And now, our model become this:
+\[
+\begin{split}
+z = &\ b + \sum_i w_i x_i\\
+y = &\ \frac{1}{1+e^{-z}}
+\end{split}
+\]
+their corresponding derivatives are 
+\[
+\begin{split}
+\frac{\partial z}{\partial w_i} = \ x_i  \,\text{,}&\, \frac{\partial z}{\partial x_i} = \ w_i \\
+\frac{dy}{dz} = &\ y(1-y)
+\end{split}
+\]
+Thus, take the derivative of $y$ with respect to $w_i$ is
+\[
+\frac{\partial y}{\partial w_i} = \frac{dy}{dz} \frac{\partial z}{\partial w_i} = x_i y (1-y)
+\]
+and 
+\[
+\frac{\partial E}{\partial w_i} = \sum \frac{\partial E}{\partial y^n} \frac{\partial y^n}{\partial w_i} = -\sum_n x_i^n y^n(1-y^n)(t^n-y^n)
+\]
+In this equation, the first and last terms come from the delta rule, and the term in the middle is the slope of logistic
+
+\Working
+\end{topic}
+
+\begin{topic}{bellmanequation}{Bellman Equation}
+Due to the Markov property of MDP, we can define the value function of a policy recursively to be 
 \begin{displaymath}
   \begin{split}
     V^{\pi}(s) & = \E_{\pi}\{R_t|s_t=s\}\\
@@ -46,19 +135,23 @@ Thus, the Bellman optimality equation can be defined as
 \end{displaymath}
 
 Detail see \citep{barto1998reinforcement}
+\end{topic}
 
-\ItemTitle{bellmanoperator}{Bellman Operator} Consider a \Item{MDP}{MDP}, Bellman Operator for policy $\pi$ can be defined as a map from a value function to another value function
+\begin{topic}{bellmanoperator}{Bellman Operator} Consider a \linktopic{MDP}{MDP}, Bellman Operator for policy $\pi$ can be defined as a map from a value function to another value function
 \begin{displaymath}
   T^\pi:\mathbb{R}^N \rightarrow \mathbb{R}^N
 \end{displaymath}
 where $N$ is the cardinality of state space, i.e. $N = |S|$.
 
 \Working
+\end{topic}
 
 
-\ItemTitle{boltzmannselection}{Boltzmann Selection} \Working
+\begin{topic}{boltzmannselection}{Boltzmann Selection}
+\Working
+\end{topic}
 
-\ItemTitle{contraction}{Contraction}  The operator $F$ (function $f$) is a $\alpha$-contraction  ($0\le\alpha<1$, called \Item{lipcon}{Lipschitz constant} for $F$) with respect to some norm $\|\cdot\|$ if
+\begin{topic}{contraction}{Contraction}  The operator $F$ (function $f$) is a $\alpha$-contraction  ($0\le\alpha<1$, called \linktopic{lipcon}{Lipschitz constant} for $F$) with respect to some norm $\|\cdot\|$ if
 \begin{displaymath}
   \forall X,\overline{X}: \|FX-F\overline{X}\| \le \alpha \|X-\overline{X}\| \quad \text{or} \quad \|f(X)-f(\overline{X})\| \le \alpha \|X-\overline{X}\|
 \end{displaymath}
@@ -114,10 +207,10 @@ Hence, $X_1=X_2$.
 \end{itemize}
 
 Detail see \citep{conrad2014contraction}
+\end{topic}
 
 
-
-\ItemTitle{comfeature}{Compatible Feature} 
+\begin{topic}{comfeature}{Compatible Feature} 
 If we are using Softmax Policy, which is 
 \[
 \pi(s,a) = \frac{e^{\phi(s,a)^{\top}\theta}}{\sum_{b}e^{\phi(s,b)^{\top}\theta}}
@@ -148,16 +241,17 @@ the score function is
 =
 \end{split}
 \]
+\end{topic}
 
 
-
-\ItemTitle{epsilongreedy}{\texorpdfstring{$\epsilon$}--greedy}
+\begin{topic}{epsilongreedy}{\texorpdfstring{$\epsilon$}--greedy}
 % use \texorpdfstring to put math notation in bookmark
 $\epsilon$-greedy is a common used exploration strategy for Model-free reinforcement learning. This strategy can be seen as a combination of greedy strategy and random strategy. Every time when agent choose an action to perform, it choose greedily with probability 1-$\epsilon$ (exploitation), and randomly with probability $\epsilon$ (exploration). However, based on the changes of $\epsilon$ value, this method have two versions. First, the $\epsilon$ value can decrease as the learning process goes on, this is the \textit{decay exploration} method. Another one which are more commonly used is that we fix the value of $\epsilon$. 
 
 The difference between those methods is that, the first one can be \hyperlink{glie}{GLIE} if the $\epsilon$-value goes 0 eventually but the second one cannot. Suppose we have a counter of how many times a state have been visited, $n_t(s)$ and a constant $c$. As long as the $\epsilon$ value for the a state $\epsilon_t(s) = \frac{c}{n_t(s)}$ where $0<c<1$, this method can be consider \hyperlink{glie}{GLIE}. However, in practice, we usually use fixed value for $\epsilon$ and after the convergence of the estimation value of action, we switch to greedy selection. 
+\end{topic}
 
-\ItemTitle{ergodicmdp}{Ergodic MDP}
+\begin{topic}{ergodicmdp}{Ergodic MDP}
 An MDP is said to be ergodic if for each policy $\pi$ the Markov chain induced by $\pi$ is ergodic.
 We are giving the definition of Ergodicity below. But first, we will give some auxiliary definitions.
 Several definition of Markov chain:
@@ -174,13 +268,17 @@ Here we have the definition of Ergodicity.
 A state $i$ is said to be ergodic if it is aperiodic and positive recurrent. In other words, a state $i$ is ergodic if it is recurrent, has a period of 1 and it has finite mean recurrence time. If all states in an irreducible Markov chain are ergodic, then the chain is said to be ergodic.
 
 It can be shown that a finite state irreducible Markov chain is ergodic if it has an aperiodic state. {\bf A model has the ergodic property if there's a finite number $N$ such that any state can be reached from any other state in exactly $N$ steps.} For example, we will have $N=1$ if we have a fully connected transition matrix where all transitions have a non-zero probability.
-{\bf Additionally, an \Item{statdistribution}{stationary distribution} $d^{\pi}$ of states exists and is independent start state $s_0$.}
+{\bf Additionally, an \linktopic{statdistribution}{stationary distribution} $d^{\pi}$ of states exists and is independent start state $s_0$.}
 
 Detail see \citep{ortner2007linear}.
+\end{topic}
 
-\ItemTitle{replay}{Experience Replay} \citep{Vanseijen2015Deeper} \citep{Riedmiller2005Neural}
+\begin{topic}{replay}{Experience Replay}
+\citep{Vanseijen2015Deeper} \citep{Riedmiller2005Neural}
+\end{topic}
 
-\ItemTitle{fa}{Function Approximation} Function approximation is a way of combining supervised learning algorithms with learning procedures in Reinforcement Learning to be able to generalize value function into large scale \Item{MDP}{MDP}. There are three different objective function for function approximation. 
+\begin{topic}{fa}{Function Approximation}
+Function approximation is a way of combining supervised learning algorithms with learning procedures in Reinforcement Learning to be able to generalize value function into large scale \linktopic{MDP}{MDP}. There are three different objective function for function approximation. 
 \begin{enumerate}
 \item Direct method\\
 In direct method, we are trying to minimize the square error of our estimation and the ``true'' value function which we temporarily assume given by an oracle.
@@ -194,11 +292,11 @@ The term$\frac{1}{2}$ is just for neat math like regular supervised learning, an
 = &\ (v(s) - V_{\theta}(s)) \nabla_{\theta} V_{\theta}(s)
 \end{split}
 \]
-Note, in the equation above, $v(s)$ is just a constant number. Since we don't really have a oracle in learning, we need to find a way to estimate the ``true'' value function. Various method can be used here. For example, we can use the \Item{td}{temporal difference learning} rule, thus the gradient become $(r + \gamma V_{\theta}(s') - V_{\theta}(s)) \nabla_{\theta} V_{\theta}(s)$, or we can use the \Item{montecarlo}{monte carlo} estimation, then the gradient become $(G_t - V_{\theta}(s)) \nabla_{\theta} V_{\theta}(s)$ or eligibility trace.
+Note, in the equation above, $v(s)$ is just a constant number. Since we don't really have a oracle in learning, we need to find a way to estimate the ``true'' value function. Various method can be used here. For example, we can use the \linktopic{td}{temporal difference learning} rule, thus the gradient become $(r + \gamma V_{\theta}(s') - V_{\theta}(s)) \nabla_{\theta} V_{\theta}(s)$, or we can use the \linktopic{montecarlo}{monte carlo} estimation, then the gradient become $(G_t - V_{\theta}(s)) \nabla_{\theta} V_{\theta}(s)$ or eligibility trace.
 
 However, this direct method has some issue with convergence. \marginpar{detail here}
 \item Fixed point method\\
-Another kind of objective function is based on the ``fixed point'' notion in \Item{contraction}{contraction}. With the contraction property, we know the value function will converge to a fixed point
+Another kind of objective function is based on the ``fixed point'' notion in \linktopic{contraction}{contraction}. With the contraction property, we know the value function will converge to a fixed point
 \[
 	V = TV
 \]
@@ -221,33 +319,39 @@ when we take the gradient of this cost function $J(\theta)$, we have
 \marginpar{need more stuff here}
 \item Projected fixed point method 
 \end{enumerate}
+\end{topic}
 
-\ItemTitle{glie}{GLIE}
-GLIE stands for ``Greedy in the Limit of Infinite Exploration'' \citep{singh2000convergence}. The learning policies in RL can be divided into two broad categories: a \textit{decay exploration} strategy which become more and more greedy and \textit{persistent exploration} which always maintain a fix exploration rate. The advantage of the first one is that we can eventually converge to the optimal policy. The second one may have the advantage always be adaptive but may not converge to the optimal. (In here, we talk about convergence in the sense that the behavior will become optimal. It is possible that some of the algorithm converge to the correct Q-value but still behave randomly with some probability by using persistent exploration strategy, Q-learning with fix $\epsilon$-greedy for example). We may want to consider this in the context of \Item{onoffpolicy}{on-policy\&off-policy}.
+\begin{topic}{glie}{GLIE}
+GLIE stands for ``Greedy in the Limit of Infinite Exploration'' \citep{singh2000convergence}. The learning policies in RL can be divided into two broad categories: a \textit{decay exploration} strategy which become more and more greedy and \textit{persistent exploration} which always maintain a fix exploration rate. The advantage of the first one is that we can eventually converge to the optimal policy. The second one may have the advantage always be adaptive but may not converge to the optimal. (In here, we talk about convergence in the sense that the behavior will become optimal. It is possible that some of the algorithm converge to the correct Q-value but still behave randomly with some probability by using persistent exploration strategy, Q-learning with fix $\epsilon$-greedy for example). We may want to consider this in the context of \linktopic{onoffpolicy}{on-policy\&off-policy}.
 
 If a \textit{decay exploration} strategy has the following two characters:
 \begin{enumerate}
 \item each action is executed infinitely often in every state that is visited infinitely often, and
 \item in the limit, the learning policy is greedy with respect to the Q-value function with probability 1.
 \end{enumerate}
-Than we can consider this decay exploration strategy GLIE. Some example of GLIE include \Item{boltzmannselection}{Boltzmann Selection}, \Item{epsilongreedy}{$\epsilon$-greedy}.
+Than we can consider this decay exploration strategy GLIE. Some example of GLIE include \linktopic{boltzmannselection}{Boltzmann Selection}, \linktopic{epsilongreedy}{$\epsilon$-greedy}.
+\end{topic}
 
-\ItemTitle{IRL}{Inverse Reinforcement Learning} 
+\begin{topic}{IRL}{Inverse Reinforcement Learning} 
 Reason for using IRL instead of behavior cloning:
 \begin{itemize}
 \item Reward functions can generalize the expert's behavior to the state space regions not covered by the demonstration. For example, the transition model can change and thus, the optimal policy change as well. 
 \item behavioral cloning cannot be applied whenever the expert demonstrates actions that cannot be executed by the
 learner (think at a humanoid robot that learns by observing a human expert)
 \end{itemize}
+\end{topic}
 
-\ItemTitle{lipcon}{Lipschitz Continuity}  Given two metric space two norm (a function that assigns  a strictly positive length or size to each vector in a vector space)
+\begin{topic}{lipcon}{Lipschitz Continuity}
+Given two metric space two norm (a function that assigns  a strictly positive length or size to each vector in a vector space)
 
 Given two metric spaces (X, dX) and (Y, dY), where dX denotes the metric on the set X and dY is the metric on set Y (for example, Y might be the set of real numbers R with the metric dY(x, y) = |x ? y|, and X might be a subset of R), a function f : X ? Y is called Lipschitz continuous if there exists a real constant K ? 0 such that, for all x1 and x2 in X,
 
 % d_Y(f(x_1), f(x_2)) \le K d_X(x_1, x_2).
 \citep{Eriksson2013Applied}
+\end{topic}
 
-\ItemTitle{lqr}{Linear Quadratic Regulator} When we consider a special system with linear dynamic and quadratic cost, we have some very nice algorithm so solve this questions.
+\begin{topic}{lqr}{Linear Quadratic Regulator}
+When we consider a special system with linear dynamic and quadratic cost, we have some very nice algorithm so solve this questions.
 \[
 \begin{split}
 	x_{t+1} = &\ A_{t}x_{t} + B_tu_t + w_t    \quad \text{for} \quad t = 0,1,\ldots,N-1\\
@@ -295,20 +399,35 @@ and matrix $K_{N-1}$ should be
 \[
 K_{N-1} = A_{N-1}^{\top}(Q_N-Q_NB_{N-1}(B_{N-1}^{\top}Q_NB_{N-1}+R_{N-1})^{-1}B_{N-1}^{\top}Q_N)A_{N-1}+Q_{N-1}
 \]
+\end{topic}
 
 
-\ItemTitle{lstd}{LSTD} \Working
 
+
+
+
+
+\begin{topic}{lspi}{LSPI}
+\Working
+\end{topic}
+
+\begin{topic}{lstd}{LSTD}
+\Working
 Related paper
+\end{topic}
 
-\ItemTitle{lspi}{LSPI} \Working
+\begin{topic}{lstm}{Long-Short Term Memory}
+\Working
+\end{topic}
 
-\ItemTitle{MDP}{Markov Decision Process}
+\begin{topic}{MDP}{Markov Decision Process}
 blah blah here
 
 Markov Decision Process can be seen as a extension of Markov Chain with additional action set (allowing selection) and reward function (motivation). It can be reduced to Markov chain if we have only one action per state and same reward for all the state.
+\end{topic}
 
-\ItemTitle{metric}{Metric Space} \Working
+\begin{topic}{metric}{Metric Space}
+\Working
 
 \textbf{Definition (Metric Space, metric).} A \textit{metric space} is a pair $(X,d)$, where $X$ is a set and $d$ is a metric on $X$ (distance function on $X$), that is, a function defined\footnote[1]{The symbol $\times$ denotes the Cartesian product of sets: $A \times B$ is the set of all ordered pairs $(a,b)$, where $a \in A$, and $b \in B$. Hence, $X \times X$ is the set of all ordered pairs of elements of $X$} on $X \times X$ such that for all $x,y,z \in X$ we have:
 \begin{enumerate}
@@ -359,10 +478,12 @@ where $y = (\upsilon_j) \in X$ and $\mathbb{N} = {1,2,\ldots}$, and sup denotes 
  where max denotes the maximum, we obtain a metric space which is denoted by $C[a,b]$. (The letter $C$ suggests ``continuous.'') This is a function space because every point of $C[a,b]$ is a function.
 \end{itemize}
 \citep{Kreyszig1989Introductory}.
+\end{topic}
 
 
 
-\ItemTitle{montecarlo}{Monte Carlo Method} Monte Carlo method is a way of making the prediction in model-free environment. The question it wants to solve is that suppose we have a policy $\pi$ known, how good is this policy? In this case, we evaluate the policy by giving the method episodes of experience $\{s_1,a_1,r_2,\ldots,s_T\}$ generated by following policy $\pi$ and wants the value function $V^{\pi}$ as output.
+\begin{topic}{montecarlo}{Monte Carlo Method}
+Monte Carlo method is a way of making the prediction in model-free environment. The question it wants to solve is that suppose we have a policy $\pi$ known, how good is this policy? In this case, we evaluate the policy by giving the method episodes of experience $\{s_1,a_1,r_2,\ldots,s_T\}$ generated by following policy $\pi$ and wants the value function $V^{\pi}$ as output.
 
 As we know, the value of being in a state $s$ is the expectation of the discounted rewards received afterwards. 
 \[
@@ -370,16 +491,18 @@ V^{\pi}(s) = \E_{\pi}[r_{t+1} + \gamma r_{t+2} + \ldots + \gamma^{T-1}r_T]
 \]
 
 two methods can be used here : first-visit and every-visit method
+\end{topic}
 
-\ItemTitle{offpolicygradient}{Off-Policy Policy Gradient Method} In \Item{reinforce}{REINFORCE} method, when we try to evaluate the expected return of a policy $\pi$, we have to run the policy several time to be able to have reasonable estimation of how good the policy is. Let $J(\theta)$ denote the expected return of policy $\pi_{\theta}$, and $\tau$ denote the trajectory (essentially a state-action sequence : $s_0, a_0, s_1, a_1, \ldots, s_T, a_T$) or rollout or history (these terms are interchangeable) of executing the policy $\pi_{\theta}$, then we know
+\begin{topic}{offpolicygradient}{Off-Policy Policy Gradient Method}
+In \linktopic{reinforce}{REINFORCE} method, when we try to evaluate the expected return of a policy $\pi$, we have to run the policy several time to be able to have reasonable estimation of how good the policy is. Let $J(\theta)$ denote the expected return of policy $\pi_{\theta}$, and $\tau$ denote the trajectory (essentially a state-action sequence : $s_0, a_0, s_1, a_1, \ldots, s_T, a_T$) or rollout or history (these terms are interchangeable) of executing the policy $\pi_{\theta}$, then we know
 \[
 \begin{split}
-J(\theta) = & \E_{\pi_{\theta}}\big[\sum{t=0}^{H}\gamma^tR(s_t,u_t)|\pi_{\theta}\big]\\
+J(\theta) = & \E_{\pi_{\theta}}\big[\sum_{t=0}^{H}\gamma^tR(s_t,u_t)|\pi_{\theta}\big]\\
 = & \sum_{\tau}P(\tau|\theta)R(\tau)
 \end{split}
 \]
 where $P(\tau|\theta)$ is the probability of having a trajectory $\tau$ by following policy $\pi_{\theta}$ and $R(\tau)$ is just the accumulated reward of that trajectory. 
-In \Item{policy gradient}{policy gradient} method, after we evaluate the policy $\pi_{\theta}$, we may want to improve it and use a new policy. Thus, the sample we collected during the process of following policy $\pi_{\theta}$ are discarded. However, it will preferable if we can reuse the data gathered of following one policy to estimate the value of following another policy. The method ``likelihood ratio'' estimation make this data reuse possible.
+In \linktopic{policy gradient}{policy gradient} method, after we evaluate the policy $\pi_{\theta}$, we may want to improve it and use a new policy. Thus, the sample we collected during the process of following policy $\pi_{\theta}$ are discarded. However, it will preferable if we can reuse the data gathered of following one policy to estimate the value of following another policy. The method ``likelihood ratio'' estimation make this data reuse possible.
 
 In practice, if we want to evaluate $J(\theta)$, we may want to draw the rollout samples from the distribution induced by policy $\pi_{\theta}$. After taking $N$ samples $\{\tau_0,\tau_1,\ldots,\tau_N\}$, we have a unbiased estimator:
 \[
@@ -412,9 +535,9 @@ Note, in the equation above, we have a term $\frac{P(\tau|\theta)}{P(\tau|\theta
 \]
 Thus, we should be able to calculate the likelihood $\frac{P(\tau|\theta)}{P(\tau|\theta')}$ for any two policies $\theta$
  and $\theta'$. Actually, we can have a mixture distributions, where $P(\tau|\theta')$ is replaced by $\frac{1}{N}\sum_jP(\tau_j|\theta_j)$ where $\tau_j$ are trajectory of following $\theta_j$, then we can make use of multiple source of distributions.
+\end{topic}
 
-
-\ItemTitle{onoffpolicy}{On-policy and Off-policy}
+\begin{topic}{onoffpolicy}{On-policy and Off-policy}
 An RL algorithm can be essentially divided into two parts, the \textit{learning policy} and \textit{update rule}. The first one is a non-stationary policy that maps experience (state visited, action chosen, reward received) to into a currently choice of action. The second part is how the algorithm uses experience to change its estimation of the optimal value function.
 In off-policy algorithm, the \textit{update rules} doesn't have relationship with \textit{learning policy}, that is the \textit{update rules} doesn't care the what action agent take. Q-learning can be consider as the off-policy algorithm.
 \begin{displaymath}
@@ -431,10 +554,12 @@ However, if we take a look of SARSA(0), which is very similar to Q-learning.
 We can see the update is based on the Q-value of the next action of the agent. Thus it is an on-policy algorithm. The convergence condition are heavily depend on the \textit{learning policy}, The Q-value of SARSA(0) can only converge to optimality in the limit only if the learning policy behavior optimal in the limit. The SARSA(0) and Q-learning will be same if we use greedy action selection strategy.
 
 Detail see \citep{singh2000convergence}.
+\end{topic}
 
 
 
-\ItemTitle{policygradient}{Policy Gradient Reinforcement Learning} Instead of determining the action based on value function, another method of determine the action to take is the direct policy search method. It is well known that value-function combined with function approximation are unable to converge to any policy even for simple MDPs (in mean-squared-error, residual-gradient, temporal-difference, and dynamic-programming sense) \lackcite 
+\begin{topic}{policygradient}{Policy Gradient Reinforcement Learning}
+Instead of determining the action based on value function, another method of determine the action to take is the direct policy search method. It is well known that value-function combined with function approximation are unable to converge to any policy even for simple MDPs (in mean-squared-error, residual-gradient, temporal-difference, and dynamic-programming sense) \lackcite 
 
 Let \(\theta\) denote the parameters of the function approximator, neural network for example, and \(J(\theta)\) the performance of the corresponding policy (e.g. the average reward per step). Then in the policy gradient approach, we can update the policy parameters proportional to the gradient:
 \[
@@ -449,14 +574,18 @@ J(\theta) = \lim_{n\rightarrow \infty} \frac{1}{n} \E\{r_1 + r_2 + \ldots + r_n 
 where \(d^{\pi}(s)\) is the stationary distribution of the states induced by \(\pi\)
 \end{itemize}
 where \(\alpha\) is a positive-definite step size.
+\end{topic}
 
-\ItemTitle{pgt}{Policy Gradient Theorem} 
-Using the same notation in \Item{policygradient}{Policy Gradient}, 
+\begin{topic}{pgt}{Policy Gradient Theorem} 
+Using the same notation in \linktopic{policygradient}{Policy Gradient}, 
+\end{topic}
 
-\ItemTitle{pi}{Policy Iteration} \Working
+\begin{topic}{pi}{Policy Iteration}
+\Working
+\end{topic}
 
-\ItemTitle{reinforce}{REINFORCE}
- REINFORCE algorithm also finds an unbiased estimate of
+\begin{topic}{reinforce}{REINFORCE}
+REINFORCE algorithm also finds an unbiased estimate of
 the gradient, but without the assistance of a learned value function. REINFORCE
 learns much more slowly than RL methods using value functions and has received
 relatively little attention. Learning a value function and using it to reduce the variance
@@ -504,22 +633,40 @@ In this case,
 \end{split}
 \]
 Since we need to compute $\nabla_{u_k} \ln p(x_{k+1}|x_k,u_k)$, thus we need to know the model of the system
+\end{topic}
 
 
-
-\ItemTitle{statdistribution}{Stationary Distribution}
-
+\begin{topic}{statdistribution}{Stationary Distribution}
 \Working
+\end{topic}
 
-\ItemTitle{stogame}{Stochastic Game}
-Stochastic game can been seen as an extension of \Item{MDP}{MDP}.
+\begin{topic}{stogame}{Stochastic Game}
+Stochastic game can been seen as an extension of \linktopic{MDP}{MDP}.
+\end{topic}
 
+\begin{topic}{td}{Temporal Difference Method} 
+\end{topic}
 
-\ItemTitle{td}{Temporal Difference Method} 
+\begin{topic}{universal}{Universal Approximator} 
+Accroding to \citep{hornik1989multilayer}, Multilayer feedforward networks are universal approximators. Single hidden layer  feedforward networks can approximate any measurable function arbitrarily well regardless of the activation function $\Psi$, the dimension of the input space $r$, and the input space environment $\mu$
+\begin{enumerate}
+\item universal approximators: standard multilayer feedforward networks are capable of approximating
+any measurable function to any desired degree of accuracy
+\item there are no theoretical constraints for the success of
+feedforward networks
+\item lack of success is due to inadequate learning, insufficient number of hidden units or the lack of a deterministic relationship between input and target
+\item rate of convergence as the number of hidden units grows
+\item rate of increase of the number of hidden units as the input dimension increases for a fixed accuracy
+\end{enumerate}
+\end{topic}
 
-\ItemTitle{vi}{Value Iteration} 
+\begin{topic}{vi}{Value Iteration} 
+\Working
+\end{topic}
 
-\ItemTitle{vs}{Vector Space}
+\begin{topic}{vs}{Vector Space}
+\Working
+\end{topic}
 
 \bibliography{RL}
 \end{document}
