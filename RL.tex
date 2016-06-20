@@ -19,9 +19,9 @@
 \newcommand{\lackcite}
 
 \begin{topic}{activation}{Activation Function} 
-Activation Function are important for neural network to have non-linearity. The commonly used activation function are summarize below. Most of them are typically combined with an affine transformation $\matr{a} = \matr{b} + \matr{W}\matr{x}$ and applied element-wise.
+Activation Function are important for neural network to have non-linearity. The commonly used activation function are summarize below. Most of them are typically combined with an affine transformation $\mat{a} = \mat{b} + \mat{W}\mat{x}$ and applied element-wise.
 \[
-	\matr{h} = f(\matr{a}) \rightarrow h_i = f(a_i) = f(b_i + \matr{W_{i,:}} *\matr{x})
+	\mat{h} = f(\mat{a}) \rightarrow h_i = f(a_i) = f(b_i + \mat{W_{i,:}} *\mat{x})
 \]
 \begin{itemize}
 \item Sigmoid\\
@@ -58,7 +58,7 @@ Let's start with linear neurons (also called linear filters). Here we first make
 \end{itemize}  
 The model of the linear neuron is like this :
 \[
-y = \sum w_i x_i = \matr{w}^T\matr{x}
+y = \sum w_i x_i = \mat{w}^T\mat{x}
 \]
 Since we are dealing with a simple linear neuron, we first derive the special case of back propagation algorithm, called \textit{delta rule}, which is a gradient descent learning rule for updating the weights of single layer neural network.
 \begin{enumerate}
@@ -242,8 +242,102 @@ the score function is
 \end{split}
 \]
 \end{topic}
+\begin{topic}{condentropy}{Conditional Entropy}
+Suppose we have a joint distribution $p(x, y)$ from which we draw pairs of values of $x$ and $y$. If a value of $x$ is already known, then the additional information needed to specify the corresponding value of $y$ is given by (use the $h(\cdot)$ function in \linktopic{entropy}{Entropy})
+ \[
+ \begin{split}
+ h(x,y) - h(x) &= -\ln p(x,y) - (-\ln p(x))\\
+&= -\ln p(y|x)p(x) + \ln p(x)\\
+&= -\ln p(y|x) -\ln p(x) + \ln p(x)\\
+&= -\ln p(y|x) 
+ \end{split}
+ \]
+ Thus the average additional information needed to specify $y$ can be written as
+ \[
+ H[y|x] = -\iint p(y,x) \ln p(y|x) \D y\D x
+ \]
+which is called the \textit{\color{red}{conditional entropy}} of $y$ given $x$. It is easily seen, using the product rule, that the conditional entropy satisfies the relation
+\[
+H[x,y] = H[y|x] + H[x]
+\]
+where $H[x, y]$ is the \linktopic{dentropy}{differential entropy} of $p(x, y)$ and $H[x]$ is the \linktopic{dentropy}{differential entropy} of the marginal distribution $p(x)$. Thus the information needed to describe $x$ and $y$ is given by the sum of the information needed to describe $x$ alone plus the additional information required to specify $y$ given $x$.
+
+\end{topic}
+
+\begin{topic}{centropy}{Cross Entropy}
+	
+\end{topic}
+
+\begin{topic}{dentropy}{Differential Entropy}
+Differential Entropy generalize the concept of \linktopic{entropy}{Entropy} to continuous cases. We first divide $x$ into bins of width $\Delta$. Then, assuming $p(x)$ is continuous, the \textit{mean value theorem} tells us that, for each such bin, there must exist a value $x_i$ such that
+\[
+\int_{i\Delta}^{(i+1)\Delta} p(x)\D x = p(x_i)\Delta
+\]
+We can now quantize the continuous variable $x$ by assigning any value $x$ to the value $x_i$ whenever $x$ falls in the $i$th bin. The probability of observing the value $x_i$ is then $p(x_i)\Delta$. This gives a discrete distribution for which the entropy takes the form
+\[
+\begin{split}
+H_{\Delta} & = -\sum_i p(x_i) \Delta \ln(p(x_i)\Delta)\\
+& = -\sum_i p(x_i)\Delta \ln p(x_i) - \ln\Delta
+\end{split}
+\]
+If we consider the limit $\Delta \to 0$. The first term will approach the integral of $p(x)\ln p(x)$ in this limit so that 
+\[
+\lim_{\Delta \to 0}\bigg\{\sum_i p(x_i) \Delta \ln p(x_i) \bigg\} = -\int p(x) \ln p(x) \D x
+\]
+The term on the very right-hand side is called the \textit{\color{red}{differential entropy}}. We can see that the discrete and continuous forms of the entropy differ by a quantity $\ln \Delta$, which diverges in the limit $\Delta \to 0$. This reflects the fact that to specify a continuous variable very precisely requires a large number of bits.
+
+Let us now consider the maximum entropy configuration for a continuous variable. In order for this maximum to be well defined, it will be necessary to constrain the first and second moments of $p(x)$ as well as preserving the normalization constraint. We therefore maximize the differential entropy with the three constraints
+\[
+\begin{split}
+\int_{-\infty}^{\infty} p(x)\D x & = 1\\
+\int_{-\infty}^{\infty} xp(x)\D x & = \mu\\
+\int_{-\infty}^{\infty} (x-\mu)^2 p(x)\D x & = \sigma^2\\
+\end{split}
+\]
+The constrained maximization can be performed using Lagrange multipliers so that we maximize the following functional with respect to $p(x)$
+\[
+-\int_{-\infty}^{\infty} p(x) \ln p(x) \D x + \lambda_1\bigg(\int_{-\infty}^{\infty} p(x)\D x - 1\bigg) + \lambda_2\bigg(\int_{-\infty}^{\infty} xp(x)\D x - \mu\bigg) + \lambda_3\bigg(\int_{-\infty}^{\infty} (x-\mu)^2 p(x)\D x -\sigma^2\bigg)
+\]
+We set the derivative of this functional to zero giving
+\[
+p(x) = \exp\{-1+\lambda_1+\lambda_2x+\lambda_3(x-\mu)^2\}
+\]
+
+The Lagrange multipliers can be found by back substitution of this result into the three constraint equations, leading finally to the result
+\[
+p(x) = \frac{1}{(2\pi \sigma^2)^{\frac{1}{2}}}\exp\bigg\{-\frac{(x-\mu)^2}{2\sigma^2}\bigg\}
+\]
+and so the distribution that maximizes the differential entropy is the Gaussian.
+If we evaluate the differential entropy of the Gaussian, we obtain
+\[
+H[x] = \frac{1}{2}\{1+\ln(2\pi\sigma^2)\}
+\]
+Thus we see again that the entropy increases as the distribution becomes broader, i.e., as $\sigma^2$ increases. This result also shows that the differential entropy, unlike the discrete entropy, can be negative, because $H(x) < 0$ for $\sigma^2 < \frac{1}{2\pi e}$.
+\end{topic}
+
+\begin{topic}{entropy}{Entropy}
+Consider a discrete random variable $x$, if we want to use a quantity $h(x)$ to measure how much information is received when we observe a specific value for this variable. The amount of information can be viewed as the ``degree of surprise'' or `` degree of information'' on learning the value of $x$. 
+
+Apparently, if we observed that a highly improbable event has just occurred, we will have received more information than if we observed some very likely event has just occurred, and if we knew that the event was certain to happen we would receive no information. Our measure of information content will therefore depend on the probability distribution $p(x)$, and the quantity $h(x)$ we are looking for is a monotonic function of the probability $p(x)$ that low $p(x)$ indicates high $h(x)$.
+ 
+The form of $h(\cdot)$ can be found by noting that if we have two events $x$ and $y$ that are unrelated, then the information gain from observing both of them should be the sum of the information gained from each of them separately, so that $h(x, y) = h(x) + h(y)$. Two unrelated events will be statistically independent and so $p(x, y) = p(x)p(y)$. Therefore, it is easily shown that $h(x)$ must be given by the logarithm of $p(x)$ and so we have
+\[
+h(x) = -\log_2 p(x)
+\]
+The negative sign ensures that information is positive or zero and also the low probability events $x$ correspond to high information content. By adopting the convention in information theory, we use the base of $2$, and in this case, the units of $h(x)$ are bits (`binary digits'). If we use the natural logarithms in defining entropy, the units is `nats' instead of bits, which differ simply by a factor of $\ln 2$.
+
+Now suppose that a sender wishes to transmit the value of a random variable to a receiver. The average amount of information that they transmit in the process is obtained by taking the expectation of $h(x)$ with respect to the distribution p(x) and is given by
+\[
+H[x] = -\sum_x p(x) \log_2 p(x)
+\]
+or
+\[
+H[x] = -\sum_x p(x) \ln p(x)
+\]
+This important quantity is called the \textit{\color{red}{entropy}} of the random variable $x$. Note that $\lim_{x\to 0}p \ln p = 0$ and so we shall take $p(x) \ln p(x) = 0$ whenever we encounter a value for $x$ such that $p(x) = 0$.  Entropy can be thought as the average amount of information needed to specify the state of a random variable and a sharply peaked distribution $p(x_i)$ will have a relatively low entropy. 
 
 
+\end{topic}
 \begin{topic}{epsilongreedy}{\texorpdfstring{$\epsilon$}--greedy}
 % use \texorpdfstring to put math notation in bookmark
 $\epsilon$-greedy is a common used exploration strategy for Model-free reinforcement learning. This strategy can be seen as a combination of greedy strategy and random strategy. Every time when agent choose an action to perform, it choose greedily with probability 1-$\epsilon$ (exploitation), and randomly with probability $\epsilon$ (exploration). However, based on the changes of $\epsilon$ value, this method have two versions. First, the $\epsilon$ value can decrease as the learning process goes on, this is the \textit{decay exploration} method. Another one which are more commonly used is that we fix the value of $\epsilon$. 
@@ -330,6 +424,33 @@ If a \textit{decay exploration} strategy has the following two characters:
 \item in the limit, the learning policy is greedy with respect to the Q-value function with probability 1.
 \end{enumerate}
 Than we can consider this decay exploration strategy GLIE. Some example of GLIE include \linktopic{boltzmannselection}{Boltzmann Selection}, \linktopic{epsilongreedy}{$\epsilon$-greedy}.
+\end{topic}
+
+\begin{topic}{kl}{Kullback-Leibler Divergence}
+Consider some unknown distribution $p(x)$, and suppose that we have modelled this using an approximating distribution $q(x)$. If we use $q(x)$ to construct a coding scheme for the purpose of transmitting values of $x$ to a receiver (see \linktopic{entropy}{Entropy} for justification of example), then the average additional amount of information (in nats) required to specify the value of $x$ (assuming we choose an efficient coding scheme) as a result of using $q(x)$ instead of the true distribution $p(x)$ is given by
+
+\[
+\begin{split}
+\text{KL}(p||q) & = - \int p(x) \ln q(x) \D x - \bigg(- \int p(x) \ln p(x) \D x\bigg)\\
+& = -\int p(x) \ln \bigg\{\frac{q(x)}{p(x)}\bigg\} \D x\\
+& = \int p(x) \ln \bigg\{\frac{p(x)}{q(x)}\bigg\} \D x
+\end{split}
+\]
+This is known as \textit{\color{red}{Kullback-Leibler divergence}} or \textit{\color{red}{relative entropy}} between the distribution $p(x)$ and $q(x)$.
+
+Kullback-Leibler divergence satisfies $\text{KL}(p||q) \ge 0$ with equality if, and only if, $p(x) = q(x)$. Although it is often intuited as a way of measuring the distance between probability distributions, the Kullback-Leibler divergence is not a true metric. It does not obey the triangle inequality, and in general $\text{KL}(P||Q)$ does not equal $\text{KL}(Q||P)$.
+
+KL-divergence can be used to task of density estimation. Suppose that data is being generated from an unknown distribution $p(x)$ that we wish to model. We can try to approximate this distribution using some parametric distribution $q(x|\theta)$, governed by a set of adjustable parameters $\theta$, for example a multivariate Gaussian. One way to determine $\theta$ is to minimize the Kullback-Leibler divergence between $p(x)$ and $q(x|\theta)$ with respect to $\theta$. We cannot do this directly because we don't know $p(x)$. Suppose, however, that we have observed a finite set of training points $x_n$, for $n = 1,\ldots,N$, drawn from $p(x)$. Then the expectation with respect to $p(x)$ can be approximated by a finite sum over these points, so that
+\[
+\begin{split}
+\text{KL}(p||q) &= \int p(x) \ln \bigg\{\frac{p(x)}{q(x|\theta)}\bigg\}\D x\\
+&= \int p(x) \{-\ln q(x|\theta) + \ln p(x)\}\D x\\
+&= \sum_{n=1}^{N}\{-\ln q(x_n|\theta) + \ln p(x_n)\}\\
+\end{split}
+\]
+The second term on the right-hand side of the equation is independent of $\theta$, and the first term is the negative log likelihood function for $\theta$ under the distribution $q(x|\theta)$ evaluated using the training set. Thus we see that minimizing this Kullback-Leibler divergence is equivalent to maximizing the likelihood function.
+
+
 \end{topic}
 
 \begin{topic}{IRL}{Inverse Reinforcement Learning} 
