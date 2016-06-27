@@ -415,6 +415,43 @@ when we take the gradient of this cost function $J(\theta)$, we have
 \end{enumerate}
 \end{topic}
 
+
+\begin{topic}{gmm}{Gaussian Mixture Model}
+By taking linear combinations of more basic distributions such as Gaussians, an probabilistic models known as mixture distributions can be formulated. This linear combination of Gaussians can give rise to very complex densities. By using a sufficient number of Gaussians, and by adjusting their means and covariances as well as the coefficients in the linear combination, almost any continuous density can be approximated to arbitrary accuracy.
+We therefore consider a superposition of $K$ Gaussian densities of the form
+\begin{equation}
+\label{eq:gmm}
+p(x) = \sum_{k=1}^{K}\pi_k\normal(x|\,u_k,\Sigma_k)
+\end{equation}
+which is called a \phrase{Gaussian Mixture Model}. Each Gaussian density $\normal(x|\mu_k,\Sigma_k)$ is called a \phrase{component} of the mixture and has its own mean $\mu_k$ and covariance $\Sigma_k$.
+
+The parameters $\pi_k$ in equation are called \phrase{mixing coefficients}. If we integrate both sides of former equation with respect to $x$, and note that both $p(x)$ and the individual Gaussian components are normalized, we obtain
+\[
+\begin{split}
+	\int p(x) \D x &= \int \sum_{k=1}^{K}\pi_k\normal(x|\mu_k,\Sigma_k) \D x\\
+	1 &= \sum_{k=1}^{K}\pi_k \int \normal(x|\mu_k,\Sigma_k) \D x\\
+	1 &= \sum_{k=1}^{K}\pi_k
+\end{split}
+\]
+Also, the requirement that $p(x) \geq 0$, together with $\normal(x|\mu_k,\Sigma_k)\geq 0$, implies $\pi_k \geq 0$ for all $k$. Combining this with the condition $\sum_{k=1}^{K}\pi_k = 1$ we obtain 
+\[
+0 \leq \pi_k \leq 1
+\]
+We therefore see that the mixing coefficients satisfy the requirements to be probabilities.
+From the sum and product rules, the marginal density is given by
+\[
+p(x) = \sum_{k=1}^{K} p(k) p(x|k)
+\]
+which is equivalent to the equation~\ref{eq:gmm} in which we can view $\pi_k=p(k)$ as the prior probability of picking the $k^\text{th}$ component, and the density $\normal(x|\mu_k,\Sigma_k) = p(x|k)$ as the probability of $x$ conditioned on $k$. an important role is played by the posterior probabilities $p(k|x)$, which are also known as \phrase{responsibilities}. From Bayes' theorem these are given by
+\[
+\begin{split}
+\gamma_k(x) &= p(k|x)\\
+&= \frac{p(k)p(x|k)}{\sum_l p(l)p(x|l)}\\
+&= \frac{\pi_k\normal(x|\mu_k,\Sigma_k)}{\sum_l \pi_l \normal(x|\mu_l,\Sigma_l)}
+\end{split}
+\]
+\end{topic}
+
 \begin{topic}{glie}{GLIE}
 GLIE stands for ``Greedy in the Limit of Infinite Exploration'' \citep{singh2000convergence}. The learning policies in RL can be divided into two broad categories: a \textit{decay exploration} strategy which become more and more greedy and \textit{persistent exploration} which always maintain a fix exploration rate. The advantage of the first one is that we can eventually converge to the optimal policy. The second one may have the advantage always be adaptive but may not converge to the optimal. (In here, we talk about convergence in the sense that the behavior will become optimal. It is possible that some of the algorithm converge to the correct Q-value but still behave randomly with some probability by using persistent exploration strategy, Q-learning with fix $\epsilon$-greedy for example). We may want to consider this in the context of \linktopic{onoffpolicy}{on-policy\&off-policy}.
 
