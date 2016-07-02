@@ -50,6 +50,19 @@ f(a) = \log(1+e^a)
 \Working
 \end{topic}
 
+\begin{topic}{approxinfer}{Approximate Inference}
+A central task in the application of Bayesian probabilistic models is the evaluation of the posterior distribution $p(\mat{Z}|\mat{X})$ of the latent variables $\mat{Z}$ given the observed data variables $\mat{X}$, and the evaluation of expectations computed with respect to this distribution. However, for many models of practical interest, it will be infeasible to evaluate the posterior distribution or indeed to compute expectations with respect to this distribution. There are several reasons for this:
+\begin{itemize}
+\item The dimensionality of the latent space is too high to work with directly
+\item The posterior distribution has a highly complex form for which expectations are not analytically tractable
+\end{itemize}
+For example, in the case of continuous variables, the required integrations may not have closed-form analytical solutions, while the dimensionality of the space and the complexity of the integrand may prohibit numerical integration. For discrete variables, the marginalizations involve summing over all possible configurations of the hidden variables, and though this is always possible in principle, we often find in practice that there may be exponentially many hidden states so that exact calculation is prohibitively expensive.
+In such situations, we need to resort to approximation schemes, and these fall broadly into two classes, according to whether they rely on deterministic or stochastic approximations. For the deterministic approximation schemes, \linktopic{variational}{variational inference} methods which use global criteria are widely used, some of which scale well to large applications. These methods are basing on analytical approximations to the posterior distribution, for example by assuming that it factorizes in a particular way or that it has a specific parametric form such as a Gaussian. Due to this reasons, they can never generate exact results.
+
+On the other hand, stochastic techniques, which based on numerical \linktopic{basic sampling}{sampling}, such as \linktopic{mcmc}{Markov chain Monte Carlo}, generally have the property that given infinite computational resource, they can generate exact results, and the approximation arises from the use of a finite amount of processor time. In practice, sampling methods can be computationally demanding, often limiting their use to small-scale problems. Also, it can be difficult to know whether a sampling scheme is generating independent samples from the required distribution.
+\end{topic}
+
+
 \begin{topic}{bp}{Back Propagation}
 Let's start with linear neurons (also called linear filters). Here we first make two assumptions:
 \begin{itemize}
@@ -106,6 +119,31 @@ and
 In this equation, the first and last terms come from the delta rule, and the term in the middle is the slope of logistic
 
 \Working
+\end{topic}
+
+\begin{topic}{basicsampling}{Basic Sampling}
+In the application of Bayesian probabilistic models, we often need to evaluate the posterior distribution $p(\mat{Z}|\mat{X})$ of the latent variables $\mat{Z}$ given the observed data variables $\mat{X}$ (see \linktopic{approxinfer}{Approximate Inference}).
+
+Although for some applications the posterior distribution over unobserved variables will be of direct interest in itself, for most situations the posterior distribution is required primarily for the purpose of evaluating expectations, for example in order to make predictions. The fundamental problem that we therefore wish to address involves finding the expectation of some function $f(\mat{z})$ with respect to a probability distribution $p(\mat{z})$. Here, the components of $\mat{z}$ might comprise discrete or continuous variables or some combination of the two. Thus in the case of continuous variables, we wish to evaluate the expectation
+\begin{equation}
+\label{eq:expectation}
+\E[f] = \int f(\mat{z})p(\mat{z})\D \mat{z}
+\end{equation}
+where the integral is replaced by summation in the case of discrete variables.  We shall suppose that such expectations are too complex to be evaluated exactly using analytical techniques.
+
+The general idea behind sampling methods is to obtain a set of samples $\mat{z}^{(l)}$ (where $l = 1,\ldots, L$) drawn independently from the distribution $p(\mat{z})$. This allows the expectation~(\ref{eq:expectation}) to be approximated by a finite sum
+\[
+\hat{f} = \frac{1}{L}\sum_{l=1}^{L} f(\mat{z}^{(l)})
+\]
+As long as the samples $\mat{z}^{(l)}$ are drawn from the distribution $p(\mat{z})$, then $\E[\hat{f}] = \E[f]$ and so the estimator $\hat{f}$ has the correct mean. The variance of the estimator is given by
+\[
+	\text{Var}[\hat{f}] = \frac{1}{L}\E[(f-\E[f])^2]
+\]
+is the variance of the function $f(\mat{z})$ under the distribution $p(\mat{z})$. It is worth emphasizing that the accuracy of the estimator therefore does not depend on the dimensionality of $\mat{z}$, and that, in principle, high accuracy may be achievable with a relatively small number of samples $\mat{z}^{(l)}$. In practice, ten or twenty independent samples may suffice to estimate an expectation to sufficient accuracy.
+
+The problem, however, is that the samples $\{\mat{z}^{(l)}\}$ might not be independent, and so the effective sample size might be much smaller than the apparent sample size. Also, we note that if $f(\mat{z})$ is small in regions where $p(\mat{z})$ is large, and vice versa, then the expectation may be dominated by regions of small probability, implying that relatively large sample sizes will be required to achieve sufficient accuracy.
+
+We first consider how to sample from some common distributions. We assume that we have a pseudo-random generator which can generate numbers distributed uniformly over $(0,1)$.
 \end{topic}
 
 \begin{topic}{bellmanequation}{Bellman Equation}
@@ -243,7 +281,7 @@ the score function is
 \]
 \end{topic}
 \begin{topic}{condentropy}{Conditional Entropy}
-Suppose we have a joint distribution $p(x, y)$ from which we draw pairs of values of $x$ and $y$. If a value of $x$ is already known, then the additional information needed to specify the corresponding value of $y$ is given by (use the $h(\cdot)$ function in \linktopic{entropy}{Entropy})
+Suppose we have a joint distribution $p(x, y)$ from which we draw pairs of values of $x$ and $y$. If a value of $x$ is already known, then the additional information needed to specify the corresponding value of $y$ is given by (use the $h(\cdot)$ function in \linktopic{entropy}{entropy})
  \[
  \begin{split}
  h(x,y) - h(x) &= -\ln p(x,y) - (-\ln p(x))\\
@@ -269,7 +307,7 @@ where $H[x, y]$ is the \linktopic{dentropy}{differential entropy} of $p(x, y)$ a
 \end{topic}
 
 \begin{topic}{dentropy}{Differential Entropy}
-Differential Entropy generalize the concept of \linktopic{entropy}{Entropy} to continuous cases. We first divide $x$ into bins of width $\Delta$. Then, assuming $p(x)$ is continuous, the \textit{mean value theorem} tells us that, for each such bin, there must exist a value $x_i$ such that
+Differential Entropy generalize the concept of \linktopic{entropy}{entropy} to continuous cases. We first divide $x$ into bins of width $\Delta$. Then, assuming $p(x)$ is continuous, the \textit{mean value theorem} tells us that, for each such bin, there must exist a value $x_i$ such that
 \[
 \int_{i\Delta}^{(i+1)\Delta} p(x)\D x = p(x_i)\Delta
 \]
@@ -366,6 +404,57 @@ It can be shown that a finite state irreducible Markov chain is ergodic if it ha
 
 Detail see \citep{ortner2007linear}.
 \end{topic}
+
+\begin{topic}{em}{Expectation Maximization}
+The \phrase{expectation maximization} algorithm, or EM algorithm, is a general technique for finding maximum likelihood solutions for probabilistic models having latent variables.
+Consider a probabilistic model in which we collectively denote all of the observed variables by $\mat{X}$ and all of the hidden variables by $\mat{Z}$. The joint distribution $p(\mat{X}, \mat{Z}|\theta)$ is governed by a set of parameters denoted $\theta$. Our goal is to maximize the likelihood function that is given by
+\[
+p(\mat{X}|\theta) = \sum_{\mat{Z}}p(\mat{X},\mat{Z}|\theta)
+\]
+The discussion is identical if $\mat{Z}$ comprises continuous variables or a combination of discrete and continuous variables, with summation replaced by integration as appropriate.
+
+The EM algorithm can be used in situation where direct optimization of $p(\mat{X}|\theta)$ is difficult, but that optimization of the joint likelihood function $p(\mat{X},\mat{Z}|\theta)$ is significantly easier. Now, we introduce a distribution $q(\mat{Z})$ defined over the latent variables, and we observe that, for any choice of $q(\mat{Z})$, we can have the following derivation
+\[
+\begin{split}
+\ln p(\mat{X},\mat{Z}|\theta) &= \ln p(\mat{Z}|\mat{X},\theta)p(\mat{X},\theta)\\
+&= \ln p(\mat{Z}|\mat{X},\theta) + \ln p(\mat{X},\theta)\\
+\ln p(\mat{X},\theta) &= \ln p(\mat{X},\mat{Z}|\theta) -  \ln p(\mat{Z}|\mat{X},\theta)\\
+\end{split}
+\]
+Then we times both side $q(\mat{Z})$, and sum over all the $\mat{Z}$.
+\[
+\sum_{\mat{Z}} q(\mat{Z}) \ln p(\mat{X},\theta) = \sum_{\mat{Z}} q(\mat{Z})\ln p(\mat{X},\mat{Z}|\theta) -  \sum_{\mat{Z}} q(\mat{Z})\ln p(\mat{Z}|\mat{X},\theta)
+\]
+Since the term $\ln p(\mat{X},\theta)$ does not depend on $\mat{Z}$, we take it out of the summation, and we notice that $\sum_{\mat{Z}}p(\mat{Z}) = 1$. So,
+\[
+\begin{split}
+\ln p(\mat{X},\theta) \sum_{\mat{Z}} q(\mat{Z})  &= \sum_{\mat{Z}} q(\mat{Z})\ln p(\mat{X},\mat{Z}|\theta) -  \sum_{\mat{Z}} q(\mat{Z})\ln p(\mat{Z}|\mat{X},\theta)\\
+\ln p(\mat{X},\theta) &= \sum_{\mat{Z}} q(\mat{Z})\ln p(\mat{X},\mat{Z}|\theta) -  \sum_{\mat{Z}} q(\mat{Z})\ln p(\mat{Z}|\mat{X},\theta)\\
+\ln p(\mat{X},\theta) &= \sum_{\mat{Z}} q(\mat{Z})\ln p(\mat{X},\mat{Z}|\theta) -  \sum_{\mat{Z}} q(\mat{Z})\ln p(\mat{Z}|\mat{X},\theta) - \sum_{\mat{Z}} q(\mat{Z}) \ln q(\mat{Z}) + \sum_{\mat{Z}} q(\mat{Z}) \ln q(\mat{Z})\\
+\ln p(\mat{X},\theta) &= \sum_{\mat{Z}} q(\mat{Z})\ln p(\mat{X},\mat{Z}|\theta) - \sum_{\mat{Z}} q(\mat{Z}) \ln q(\mat{Z}) - \bigg(\sum_{\mat{Z}} q(\mat{Z})\ln p(\mat{Z}|\mat{X},\theta) - \sum_{\mat{Z}} q(\mat{Z}) \ln q(\mat{Z})\bigg)\\
+\ln p(\mat{X},\theta) &= \sum_{\mat{Z}} q(\mat{Z})\ln \bigg\{\frac{p(\mat{X},\mat{Z}|\theta)}{q(\mat{Z})}\bigg\}- \bigg(\sum_{\mat{Z}} q(\mat{Z})\ln \bigg\{\frac{p(\mat{Z}|\mat{X},\theta)}{q(\mat{Z})}\bigg\}\bigg)\\
+\end{split}
+\]
+If we define
+\[
+\begin{split}
+\mathcal{L}(q,\theta) &= \sum_{\mat{Z}} q(\mat{Z})\ln \bigg\{\frac{p(\mat{X},\mat{Z}|\theta)}{q(\mat{Z})}\bigg\}\\
+\text{KL}(q||p) &= - \sum_{\mat{Z}} q(\mat{Z})\ln \bigg\{\frac{p(\mat{Z}|\mat{X},\theta)}{q(\mat{Z})}\bigg\}
+\end{split}
+\]
+Then, we can have the following equation
+\begin{equation}
+\label{eq:kldecomposition}
+\ln p(\mat{X}|\theta) = \mathcal{L}(q,\theta) + \text{KL}(q||p)
+\end{equation}
+From~\ref{eq:kldecomposition}, we see that $\text{KL}(q||p)$ is the \linktopic{kl}{Kullback-Leibler divergence} between $q(\mat{Z})$ and the posterior distribution $p(\mat{Z}|\mat{X}, \theta)$. Since Kullback-Leibler divergence satisfies $\text{KL}(q||p)\geq 0$, with equality if, and only if, $q(\mat{Z}) = p(\mat{Z}|\mat{X}, \theta)$. It therefore follows from~\ref{eq:kldecomposition} that $\mathcal{L}(q,\theta) \leq \ln p(\mat{X}|\theta)$, in other words that $\mathcal{L}(q,\theta)$ is a lower bound on $\ln p(\mat{X}|\theta)$.
+
+The EM algorithm is a two-stage iterative optimization technique for finding maximum likelihood solutions. We can use the decomposition~\ref{eq:kldecomposition} to define the EM algorithm and to demonstrate that it does indeed maximize the log likelihood. Suppose that the current value of the parameter vector is $\theta^\text{(old)}$. In the E step, the lower bound $\mathcal{L}(q,\theta^\text{(old)})$ is maximized with respect to $q(\mat{Z})$ while holding $\theta^\text{old}$ fixed. The solution to this maximization problem is easily seen by noting that the value of $\ln p(\mat{X}|\theta^\text{(old)})$ does not depend on $q(\mat{Z})$ and so the largest value of $\mathcal{L}(q,\theta^\text{(old)})$ will occur when the Kullback-Leibler divergence vanishes, in other words when $q(\mat{Z})$ is equal to the posterior distribution $p(\mat{Z}|\mat{X},\theta^\text{(old)})$. In this case, the lower bound will equal the log likelihood.
+
+In the subsequent M step, the distribution $q(\mat{Z})$ is held fixed and the lower bound $\mathcal{L}(q,\theta)$ is maximized with respect to $\theta$ to give some new value $\theta^\text{(new)}$. This will cause the lower bound $\mathcal{L}$ to increase (unless it is already at a maximum), which will necessarily cause the corresponding log likelihood function to increase. Because the distribution $q$ is determined using the old parameter values rather than the new values and is held fixed during the M step, it will not equal the new posterior distribution $p(\mat{Z}|\mat{X},\theta^\text{(new)})$, and hence there will be a nonzero KL divergence. The increase in the log likelihood function is therefore greater than the increase in the lower bound.
+\end{topic}
+
+
 
 \begin{topic}{replay}{Experience Replay}
 \citep{Vanseijen2015Deeper} \citep{Riedmiller2005Neural}
@@ -500,11 +589,13 @@ learner (think at a humanoid robot that learns by observing a human expert)
 \end{topic}
 
 \begin{topic}{lipcon}{Lipschitz Continuity}
-Given two metric space two norm (a function that assigns  a strictly positive length or size to each vector in a vector space)
-
-Given two metric spaces (X, dX) and (Y, dY), where dX denotes the metric on the set X and dY is the metric on set Y (for example, Y might be the set of real numbers R with the metric dY(x, y) = |x ? y|, and X might be a subset of R), a function f : X ? Y is called Lipschitz continuous if there exists a real constant K ? 0 such that, for all x1 and x2 in X,
-
-% d_Y(f(x_1), f(x_2)) \le K d_X(x_1, x_2).
+Suppose we are given two \linktopic{metric}{metric space} $(X,\D_X)$ and $(Y,\D_Y)$, where $\D_X$ denotes the metric on the set $X$ and $\D_Y$ is the metric on set $Y$, we have the following definition.
+\begin{itemize}
+\item A function $f:X\rightarrow Y$ is called \phrase{Lipschitz continuous} at $x\in X$ if there exists a real constant $C\geq 0$ such that, for all $x'$ in $X$,
+\[
+\D_Y(f(x), f(x')) \le C \D_X(x, x')
+\]
+\end{itemize}
 \citep{Eriksson2013Applied}
 \end{topic}
 
@@ -578,6 +669,10 @@ Related paper
 \Working
 \end{topic}
 
+\begin{topic}{mcmc}{Markov Chain Monte Carlo}
+\Working
+\end{topic}
+
 \begin{topic}{MDP}{Markov Decision Process}
 blah blah here
 
@@ -638,7 +733,9 @@ where $y = (\upsilon_j) \in X$ and $\mathbb{N} = {1,2,\ldots}$, and sup denotes 
 \citep{Kreyszig1989Introductory}.
 \end{topic}
 
-
+\begin{topic}{norm}{Norm}
+a function that assigns  a strictly positive length or size to each vector in a vector space)
+\end{topic}
 
 \begin{topic}{montecarlo}{Monte Carlo Method}
 Monte Carlo method is a way of making the prediction in model-free environment. The question it wants to solve is that suppose we have a policy $\pi$ known, how good is this policy? In this case, we evaluate the policy by giving the method episodes of experience $\{s_1,a_1,r_2,\ldots,s_T\}$ generated by following policy $\pi$ and wants the value function $V^{\pi}$ as output.
@@ -819,6 +916,10 @@ feedforward networks
 \end{topic}
 
 \begin{topic}{vi}{Value Iteration} 
+\Working
+\end{topic}
+
+\begin{topic}{variational}{Variational Inference}
 \Working
 \end{topic}
 
