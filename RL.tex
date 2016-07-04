@@ -59,7 +59,7 @@ A central task in the application of Bayesian probabilistic models is the evalua
 For example, in the case of continuous variables, the required integrations may not have closed-form analytical solutions, while the dimensionality of the space and the complexity of the integrand may prohibit numerical integration. For discrete variables, the marginalizations involve summing over all possible configurations of the hidden variables, and though this is always possible in principle, we often find in practice that there may be exponentially many hidden states so that exact calculation is prohibitively expensive.
 In such situations, we need to resort to approximation schemes, and these fall broadly into two classes, according to whether they rely on deterministic or stochastic approximations. For the deterministic approximation schemes, \linktopic{variational}{variational inference} methods which use global criteria are widely used, some of which scale well to large applications. These methods are basing on analytical approximations to the posterior distribution, for example by assuming that it factorizes in a particular way or that it has a specific parametric form such as a Gaussian. Due to this reasons, they can never generate exact results.
 
-On the other hand, stochastic techniques, which based on numerical \linktopic{basic sampling}{sampling}, such as \linktopic{mcmc}{Markov chain Monte Carlo}, generally have the property that given infinite computational resource, they can generate exact results, and the approximation arises from the use of a finite amount of processor time. In practice, sampling methods can be computationally demanding, often limiting their use to small-scale problems. Also, it can be difficult to know whether a sampling scheme is generating independent samples from the required distribution.
+On the other hand, stochastic techniques, which based on numerical \linktopic{basicsampling}{sampling}, such as \linktopic{mcmc}{Markov chain Monte Carlo}, generally have the property that given infinite computational resource, they can generate exact results, and the approximation arises from the use of a finite amount of processor time. In practice, sampling methods can be computationally demanding, often limiting their use to small-scale problems. Also, it can be difficult to know whether a sampling scheme is generating independent samples from the required distribution.
 \end{topic}
 
 
@@ -144,6 +144,10 @@ is the variance of the function $f(\mat{z})$ under the distribution $p(\mat{z})$
 The problem, however, is that the samples $\{\mat{z}^{(l)}\}$ might not be independent, and so the effective sample size might be much smaller than the apparent sample size. Also, we note that if $f(\mat{z})$ is small in regions where $p(\mat{z})$ is large, and vice versa, then the expectation may be dominated by regions of small probability, implying that relatively large sample sizes will be required to achieve sufficient accuracy.
 
 We first consider how to sample from some common distributions. We assume that we have a pseudo-random generator which can generate numbers distributed uniformly over $(0,1)$.
+
+\Working
+
+
 \end{topic}
 
 \begin{topic}{bellmanequation}{Bellman Equation}
@@ -579,6 +583,61 @@ The second term on the right-hand side of the equation is independent of $\theta
 
 \end{topic}
 
+\begin{topic}{importancesampling}{Importance Sampling}
+Unlike \linktopic{rejectionsampling}{rejection sampling} or other \linktopic{basicsampling}{sampling} method for standard distribution.
+The technique of \phrase{importance sampling} provides a framework for approximating expectations directly but does not itself provide a mechanism for drawing samples from distribution $p(\mat{z})$. Suppose, that it is impractical to sample directly from $p(\mat{z})$ but that we can evaluate $p(\mat{z})$ easily for any given value of $\mat{z}$. Like rejection sampling, we have a proposal distribution $q(\mat{z})$. Given the sample set $\{\mat{z}^{(l)}\}$, then we can use the following derivation
+\[
+\begin{split}
+\E_p[f] &= \int p(\mat{z})f(\mat{z}) \D \mat{z}\\
+&= \int p(\mat{z})f(\mat{z}) \frac{q(\mat{z})}{q(\mat{z})}\D \mat{z}\\
+&= \int q(\mat{z}) \frac{p(\mat{z})}{q(\mat{z})} f(\mat{z})\D \mat{z}\\
+&= \E_q\bigg[\frac{p(\mat{z})}{q(\mat{z})} f\bigg]\\
+&= \frac{1}{L} \sum_{l=1}^{L}\frac{p(\mat{z}^{(l)})}{q(\mat{z}^{(l)})}f(\mat{z}^{(l)})
+\end{split}
+\]
+The quantities $r_l = p(\mat{z}^{(l)})/q(\mat{z}^{(l)})$ is the \phrase{importance weights}, and they correct the bias introduced by sampling from the wrong distribution. Unlike rejection sampling, all of the samples generated in importance sampling are retained.
+
+Now consider the case same as in \linktopic{rejectionsampling}{rejection sampling}
+\[
+p(\mat{z}) = \frac{1}{Z_p}\widetilde{p}(\mat{z})
+\]
+We make the further assumption that the proposal distribution has the same property
+\[
+q(\mat{z}) = \frac{1}{Z_q}\widetilde{q}(\mat{z})
+\]
+We then have
+\[
+\begin{split}
+\E[f] &= \int p(\mat{z})f(\mat{z})\D\mat{z}\\
+&= \frac{Z_q}{Z_p}\int f(\mat{z}) \frac{\widetilde{p}(\mat{z})}{\widetilde{q}(\mat{z})} q(\mat{z}) \D\mat{z}\\
+&= \frac{Z_q}{Z_p}\frac{1}{L} \sum_{l=1}^{L}\widetilde{r}_l f(\mat{z}^{(l)})
+\end{split}
+\]
+where $\widetilde{r}_l = \widetilde{p}(\mat{z})/\widetilde{q}(\mat{z})$. The ratio of $Z_p/Z_q$ can be evaluate using the same sample set.
+\[
+\begin{split}
+\frac{Z_p}{Z_q} &= \frac{\int \widetilde{p}(\mat{z}) \D \mat{z}}{Z_p} = \int \frac{\widetilde{p}(\mat{z})}{Z_q} \D\mat{z}\\
+&= \int \frac{\widetilde{p}(\mat{z})}{\widetilde{q}(\mat{z})/q(\mat{z})} \D\mat{z}\\
+&= \int \frac{\widetilde{p}(\mat{z})}{\widetilde{q}(\mat{z})} q(\mat{z})\D\mat{z}\\
+&= \frac{1}{L} \sum_{l=1}^{L}\widetilde{r}_l
+\end{split}
+\]
+With this result, we can obtain the value of $\E[f]$.
+\[
+\begin{split}
+\E[f] &= \frac{Z_q}{Z_p}\frac{1}{L} \sum_{l=1}^{L}\widetilde{r}_l f(\mat{z}^{(l)})\\
+&= \frac{L}{\sum_{l=1}^{L}\widetilde{r}_l}\frac{1}{L} \sum_{l=1}^{L}\widetilde{r}_l f(\mat{z}^{(l)})\\
+&=\sum_{l=1}^{L}\frac{\widetilde{r}_l}{\sum_{l=1}^{L}\widetilde{r}_l} f(\mat{z}^{(l)})\\
+&=\sum_{l=1}^{L}w_l f(\mat{z}^{(l)})
+\end{split}
+\]
+where we define
+\[
+w_l = \frac{\widetilde{r}_l}{\sum_{l=1}^{L}\widetilde{r}_l} = \frac{\widetilde{p}(\mat{z}^{(l)})/\widetilde{q}(\mat{z}^{(l)})}{\sum_{l} \widetilde{p}(\mat{z}^{(l)})/\widetilde{q}(\mat{z}^{(l)})}
+\]
+As with rejection sampling, the success of the importance sampling approach depends crucially on how well the sampling distribution $q(\mat{z})$ matches the desired distribution $p(\mat{z})$. If, as is often the case, $p(\mat{z})f(\mat{z})$ is strongly varying and has a significant proportion of its mass concentrated over relatively small regions of $\mat{z}$ space, then the set of importance weights $\{r_l\}$ may be dominated by a few weights having large values, with the remaining weights being relatively insignificant. Thus the effective sample size can be much smaller than the apparent sample size $L$. The problem is even more severe if none of the samples falls in the regions where $p(\mat{z})f(\mat{z})$ is large. In that case, the apparent variances of $r_l$ and $r_l f(\mat{z}^{(l)})$ may be small even though the estimate of the expectation may be severely wrong. Hence a major drawback of the importance sampling method is the potential to produce results that are arbitrarily in error and with no diagnostic indication. This also highlights a key requirement for the sampling distribution $q(\mat{z})$, namely that it should not be small or zero in regions where $p(\mat{z})$ may be significant.
+\end{topic}
+
 \begin{topic}{IRL}{Inverse Reinforcement Learning} 
 Reason for using IRL instead of behavior cloning:
 \begin{itemize}
@@ -753,7 +812,7 @@ In \linktopic{reinforce}{REINFORCE} method, when we try to evaluate the expected
 \[
 \begin{split}
 J(\theta) = & \E_{\pi_{\theta}}\big[\sum_{t=0}^{H}\gamma^tR(s_t,u_t)|\pi_{\theta}\big]\\
-= & \sum_{\tau}P(\tau|\theta)R(\tau)
+= & \sum_{\tau}p(\tau|\theta)R(\tau)
 \end{split}
 \]
 where $P(\tau|\theta)$ is the probability of having a trajectory $\tau$ by following policy $\pi_{\theta}$ and $R(\tau)$ is just the accumulated reward of that trajectory. 
@@ -769,27 +828,27 @@ need to figure why can we ignore the dynamic model
 \end{comment}
 \[
 \begin{split}
-J(\theta) = & \sum_{\tau}P(\tau|\theta)R(\tau)\\
-= & \sum_{\tau}P(\tau|\theta) \frac{P(\tau|\theta')}{P(\tau|\theta')} R(\tau)\\
-= & \sum_{\tau}P(\tau|\theta') \frac{P(\tau|\theta)}{P(\tau|\theta')} R(\tau)\\
-= & \E_{\pi_{\theta'}}\big[\frac{P(\tau|\theta)}{P(\tau|\theta')} R(\tau)\big]
+J(\theta) = & \sum_{\tau}p(\tau|\theta)R(\tau)\\
+= & \sum_{\tau}p(\tau|\theta) \frac{p(\tau|\theta')}{p(\tau|\theta')} R(\tau)\\
+= & \sum_{\tau}p(\tau|\theta') \frac{p(\tau|\theta)}{p(\tau|\theta')} R(\tau)\\
+= & \E_{\pi_{\theta'}}\bigg[\frac{p(\tau|\theta)}{p(\tau|\theta')} R(\tau)\bigg]
 \end{split}
 \]
-Note that, $P(\tau|\theta)$ and $P(\tau|\theta')$ is the probability of same sample $\tau$ under different distribution defined by $\theta$ and $\theta'$. Now, we can estimate the $J(\theta)$ with respect to the the distribution induced by $\pi_{\theta'}$. This method of estimating one expectation with respect to another distribution is called `'importance sampling''. So, we can rewrite the $\hat{J(\theta)}$ as
+Note that, $p(\tau|\theta)$ and $p(\tau|\theta')$ is the probability of same sample $\tau$ under different distribution induced by $\theta$ and $\theta'$. Now, we can estimate the $J(\theta)$ with respect to the the distribution induced by $\pi_{\theta'}$. This method of estimating one expectation with respect to another distribution is called \linktopic{importancesampling}{importance sampling}, which is widely used for off-policy learning. So, we can rewrite the $\hat{J(\theta)}$ as
 \[
-\hat{J(\theta)} = \frac{1}{N}\sum_{i}R(\tau_i)\frac{P(\tau|\theta)}{P(\tau|\theta')}
+\hat{J(\theta)} = \frac{1}{N}\sum_{i}R(\tau_i)\frac{p(\tau|\theta)}{p(\tau|\theta')}
 \]
-Note, in the equation above, we have a term $\frac{P(\tau|\theta)}{P(\tau|\theta')}$. Since we don't have the model of the world, it's not possible to directly compute $P(\tau|\theta)$ or $P(\tau|\theta')$. But if we expand the fraction term (note that $P(\tau|\theta)$ and $P(\tau|\theta')$ both evaluate on the same trajectory sample $\tau$, therefore the state action sequence is same for both), we can see that 
+Note, in the equation above, we have a term $\frac{p(\tau|\theta)}{p(\tau|\theta')}$. Since we don't have the model of the world, it's not possible to directly compute $p(\tau|\theta)$ or $p(\tau|\theta')$. But if we expand the fraction term (note that $p(\tau|\theta)$ and $p(\tau|\theta')$ both evaluate on the same trajectory sample $\tau$, therefore the state action sequence is same for both), we can see that 
 \[
 \begin{split}
-\frac{P(\tau|\theta)}{P(\tau|\theta')} = &\ \frac{P(s_0)\prod_{t=0}^T\big[P(s_{t+1}|s_t,a_t)P(a_t|s_t, \theta)\big]}{P(s_0)\prod_{t=0}^T\big[P(s_{t+1}|s_t,a_t)P(a_t|s_t,\theta')\big]}\\
-= &\ \frac{P(s_0)\prod_{t=0}^TP(s_{t+1}|s_t,a_t)\prod_{t=0}^TP(a_t|s_t, \theta)}{P(s_0)\prod_{t=0}^TP(s_{t+1}|s_t,a_t)\prod_{t=0}^TP(a_t|s_t,\theta')}\\
-= &\ \frac{\prod_{t=0}^TP(a_t|s_t,\theta)}{\prod_{t=0}^TP(a_t|s_t,\theta')}\\
+\frac{p(\tau|\theta)}{p(\tau|\theta')} = &\ \frac{p(s_0)\prod_{t=0}^T\big[p(s_{t+1}|s_t,a_t)p(a_t|s_t, \theta)\big]}{p(s_0)\prod_{t=0}^T\big[p(s_{t+1}|s_t,a_t)p(a_t|s_t,\theta')\big]}\\
+= &\ \frac{p(s_0)\prod_{t=0}^Tp(s_{t+1}|s_t,a_t)\prod_{t=0}^Tp(a_t|s_t, \theta)}{p(s_0)\prod_{t=0}^Tp(s_{t+1}|s_t,a_t)\prod_{t=0}^Tp(a_t|s_t,\theta')}\\
+= &\ \frac{\prod_{t=0}^Tp(a_t|s_t,\theta)}{\prod_{t=0}^Tp(a_t|s_t,\theta')}\\
 = &\ \frac{\prod_{t=0}^T\pi_{\theta}(a_t|s_t)}{\prod_{t=0}^T\pi_{\theta'}(a_t|s_t)}\\
 \end{split}
 \]
-Thus, we should be able to calculate the likelihood $\frac{P(\tau|\theta)}{P(\tau|\theta')}$ for any two policies $\theta$
- and $\theta'$. Actually, we can have a mixture distributions, where $P(\tau|\theta')$ is replaced by $\frac{1}{N}\sum_jP(\tau_j|\theta_j)$ where $\tau_j$ are trajectory of following $\theta_j$, then we can make use of multiple source of distributions.
+Thus, we should be able to calculate the likelihood $\frac{p(\tau|\theta)}{p(\tau|\theta')}$ for any two policies $\theta$
+ and $\theta'$. Actually, we can have a mixture distributions, where $p(\tau|\theta')$ is replaced by $\frac{1}{N}\sum_jp(\tau_j|\theta_j)$ where $\tau_j$ are trajectory of following $\theta_j$, then we can make use of multiple source of distributions.
 \end{topic}
 
 \begin{topic}{onoffpolicy}{On-policy and Off-policy}
@@ -890,6 +949,55 @@ In this case,
 Since we need to compute $\nabla_{u_k} \ln p(x_{k+1}|x_k,u_k)$, thus we need to know the model of the system
 \end{topic}
 
+\begin{topic}{rejectionsampling}{Rejection Sampling}
+Due some constraints, the inverse cumulative distribution function (CDF) is intractable (no analytic form is available through the indefinite integral) for some distributions. Therefore, direct sampling from the this kind of posterior distributions in probabilistic model cannot use the technique described in \linktopic{basicsampling}{basic sampling}. Furthermore, it is often the case that for a given distribution 
+\[
+p(\mat{z}) = \frac{1}{Z_p}\widetilde{p}(\mat{z})
+\]
+evaluating $\widetilde{p}(\mat{z})$ for any given value of $\mat{z}$ is easy, but to compute the normalizing constant $Z_p$ is hard. In practice, we may only know about the part that is directly associate with $z$, and we treat the rest part as $Z_p$. For example, consider a gamma distribution
+\[
+\text{Gam}(z|a,b) = \frac{b^a z^{a-1} \exp(-bz)}{\Gamma(a)}
+\]
+The expression $\frac{b^a}{\Gamma(a)}$ is not relevant to $z$, so we can treat it as $Z_p$. For the cases where the vale of $Z_p$
+ is hard to obtain, we want to use the sampling methods only require the knowledge of $\widetilde{p}(z)$, thus, avoid the computation of $Z_p$.
+ 
+In order to apply rejection sampling, we need some simpler distribution q(z), sometimes called a \phrase{proposal distribution}, from which we can readily draw samples. We next introduce a constant $k$ whose value is chosen such that $kq(z)\geq \widetilde{p}(z)$ for all values of $z$. The function $kq(z)$ is called the \phrase{comparison function}. Each step of the rejection sampler involves generating two random numbers. First, we generate a number $z_0$ from the distribution $q(z)$. Next, we generate a number $u_0$ from the uniform distribution over $[0,kq(z_0)]$. This pair of random numbers has uniform distribution under the curve of the function $kq(z)$. Finally, if $u_0 > \widetilde{p}(z_0)$ then the sample is rejected, otherwise $u_0$ is retained. Thus the pair is rejected if it doesn't lie in the region in $\widetilde{p}(z)$. The remaining pairs then have uniform distribution under the curve of $\widetilde{p}(z)$, and hence the correspond $z$ values are distributed according to $p(z)$, as desired. 
+
+To see why the obtained sample obeying $p(z)$, we first notice that the probability of accept the sample is given by
+\begin{equation}
+\label{eq:rejectionaccept}
+p(\text{accept}|\mat{z}) = \frac{\widetilde{p}(\mat{z})}{kq(\mat{z})}
+\end{equation}
+Thus, the probability of drawing a sample $\mat{z}$ following the proposed method is
+\[
+q(\mat{z}) p(\text{accept}|\mat{z}) = q(\mat{z}) \frac{\widetilde{p}(\mat{z})}{kq(\mat{z})} = \frac{\widetilde{p}(\mat{z})}{k}
+\]
+which is a probability density that integrates to 1
+\[
+\int \frac{\widetilde{p}(\mat{z})}{k} \D \mat{z} = 1
+\]
+Since $p(\mat{z})$ is $\widetilde{p}(\mat{z})$ normalized with $Z_p$,
+\[
+p(\mat{z}) = \frac{\widetilde{p}(\mat{z})}{Z_p}
+\]
+where
+\[
+\int \frac{\widetilde{p}(\mat{z})}{Z_p} \D \mat{z} = 1
+\]
+Therefore, $k = Z_p$, and $p(\mat{z})$ is $\frac{\widetilde{p}(\mat{z})}{k}$ which is normalized.
+
+From equation~(\ref{eq:rejectionaccept}), we see that the fraction of points that are rejected by this method depends on the ratio of the area under the unnormalized distribution, $p(z)$ to the area under the curve $kq(z)$. We therefore see that the constant $k$ should be as small as possible subject to the limitation that $kq(z)$ must be nowhere less than $\widetilde{p}(z)$.
+
+In many instances where we might wish to apply rejection sampling, it proves difficult to determine a suitable analytic form for the envelope distribution $q(z)$. An alternative approach is to construct the envelope function on the fly based on measured values of the distribution $p(z)$. Construction of an envelope function is particularly straightforward for cases in which $p(z)$ is log concave, in other words when $-\ln p(z)$ is a convex function.
+
+The function $\ln p(z)$ and its gradient are evaluated at some initial set of grid points, and the intersections of the resulting tangent lines are used to construct the envelope function. Next a sample value is drawn from the envelope distribution. This is straightforward because the log of the envelope distribution is a succession of linear functions, and hence the envelope distribution itself comprises a piecewise exponential distribution of the form
+\[
+q(z) = k_i \lambda_i \exp\{-\lambda_i (z - z_{i-1})\}
+\]
+Once a sample has been drawn, the usual rejection criterion can be applied. If the sample is accepted, then it will be a draw from the desired distribution. If, however, the sample is rejected, then it is incorporated into the set of grid points, a new tangent line is computed, and the envelope function is thereby refined. As the number of grid points increases, so the envelope function becomes a better approximation of the desired distribution $p(z)$ and the probability of rejection decreases. This is called \phrase{adaptive rejection sampling}.
+
+Clearly for rejection sampling to be of practical value, we require that the comparison function be close to the required distribution so that the rate of rejection is kept to a minimum. However, even with a great comparison function, the acceptance rate can still diminishe exponentially with the increasing of dimensionality. Thus, this method is more suitable for problems with one or two dimensions.
+\end{topic}
 
 \begin{topic}{statdistribution}{Stationary Distribution}
 \Working
