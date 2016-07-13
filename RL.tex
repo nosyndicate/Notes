@@ -57,7 +57,8 @@ A central task in the application of Bayesian probabilistic models is the evalua
 \item The posterior distribution has a highly complex form for which expectations are not analytically tractable
 \end{itemize}
 For example, in the case of continuous variables, the required integrations may not have closed-form analytical solutions, while the dimensionality of the space and the complexity of the integrand may prohibit numerical integration. For discrete variables, the marginalizations involve summing over all possible configurations of the hidden variables, and though this is always possible in principle, we often find in practice that there may be exponentially many hidden states so that exact calculation is prohibitively expensive.
-In such situations, we need to resort to approximation schemes, and these fall broadly into two classes, according to whether they rely on deterministic or stochastic approximations. For the deterministic approximation schemes, \linktopic{variational}{variational inference} methods which use global criteria are widely used, some of which scale well to large applications. These methods are basing on analytical approximations to the posterior distribution, for example by assuming that it factorizes in a particular way or that it has a specific parametric form such as a Gaussian. Due to this reasons, they can never generate exact results.
+
+In such situations, we need to resort to approximation schemes, and these fall broadly into two classes, according to whether they rely on deterministic or stochastic approximations. For the deterministic approximation schemes, \linktopic{variational}{variational inference} methods which use global criteria are widely used, some of which scale well to large applications. These methods are basing on analytical approximations to the posterior distribution, for example by assuming that it factorizes in a particular way or that it has a specific parametric form such as a Gaussian. Due to this reasons, they can never generate exact results.
 
 On the other hand, stochastic techniques, which based on numerical \linktopic{basicsampling}{sampling}, such as \linktopic{mcmc}{Markov chain Monte Carlo}, generally have the property that given infinite computational resource, they can generate exact results, and the approximation arises from the use of a finite amount of processor time. In practice, sampling methods can be computationally demanding, often limiting their use to small-scale problems. Also, it can be difficult to know whether a sampling scheme is generating independent samples from the required distribution.
 \end{topic}
@@ -999,6 +1000,16 @@ Once a sample has been drawn, the usual rejection criterion can be applied. If t
 Clearly for rejection sampling to be of practical value, we require that the comparison function be close to the required distribution so that the rate of rejection is kept to a minimum. However, even with a great comparison function, the acceptance rate can still diminishe exponentially with the increasing of dimensionality. Thus, this method is more suitable for problems with one or two dimensions.
 \end{topic}
 
+\begin{topic}{sir}{Sampling-Importance-Resampling}
+The \linktopic{rejectionsampling}{rejection sampling} method depends in part for its success on the determination of a suitable value for the constant $k$. For many pairs of distributions $p(\mat{z})$ and $q(\mat{z})$, it will be impractical to determine a suitable value for k in that any value that is sufficiently large to guarantee a bound on the desired distribution will lead to impractically small acceptance rates.
+
+As in the case of rejection sampling, the \phrase{sampling-importance-resampling} (SIR) approach also makes use of a sampling distribution $q(\mat{z})$ but avoids having to determine the constant $k$. There are two stages to the scheme. In the first stage, $L$ samples $\mat{z}^{(1)}, \ldots , \mat{z}^{(L)}$ are drawn from $q(\mat{z})$. Then in the second stage, weights $w_1, \ldots, w_L$ are constructed using the method from \linktopic{importancesampling}{importance sampling}. Finally, a second set of $L$ samples is drawn from previous sample set $(\mat{z}^{(1)} , \ldots , \mat{z}^{(L)} )$ with probabilities given by the weights $(w_1, \ldots , w_L)$.
+
+The resulting $L$ samples are only approximately distributed according to $p(\mat{z})$, but the distribution becomes correct in the limit $L \to \infty$. To see this, consider the univariate case, and note that the cumulative distribution of the resampled values is given by
+
+\Working
+\end{topic}
+
 \begin{topic}{statdistribution}{Stationary Distribution}
 \Working
 \end{topic}
@@ -1028,7 +1039,18 @@ feedforward networks
 \end{topic}
 
 \begin{topic}{variational}{Variational Inference}
-\Working
+Instead of using \linktopic{basicsampling}{sampling method} to approximate the posterior distribution of $p(\mat{Z}|\mat{X})$, we could use the distribution we come up with to approximate the real posterior. This method of using one distribution to approximate another distribution is \phrase{variational inference}, which is the deterministic way of doing \linktopic{approxinfer}{approximate inference} method.
+
+Suppose we have a fully Bayesian model in which all parameters are given prior distributions. The model may also have latent variables as well as parameters, and we shall denote the set of all latent variables and parameters by $\mat{Z}$. Similarly, we denote the set of all observed variables by $\mat{X}$. For example, we might have a set of $N$ independent, identically distributed data, for which $X = \{\mat{x}_1,\ldots,\mat{x}_N\}$ and $Z = \{\mat{z}_1,\ldots,\mat{z}_N\}$. Our probabilistic model specifies the joint distribution $p(\mat{X}, \mat{Z})$, and our goal is to find an approximation for the posterior distribution $p(\mat{Z}|\mat{X})$ as well as for the model evidence $p(\mat{X})$. Similar to \linktopic{em}{EM}, we can decompose the log marginal probability using
+\[
+\begin{split}
+\mathcal{L}(q) &= \int_{\mat{Z}} q(\mat{Z})\ln \bigg\{\frac{p(\mat{X},\mat{Z})}{q(\mat{Z})}\bigg\} \D \mat{Z}\\
+\text{KL}(q||p) &= - \int_{\mat{Z}} q(\mat{Z})\ln \bigg\{\frac{p(\mat{Z}|\mat{X})}{q(\mat{Z})}\bigg\}\D\mat{Z}
+\end{split}
+\]
+Note the difference here is that the parameter vector $\theta$ no longer appears, because now the parameters are now stochastic variables which is part of $\mat{Z}$. As before, we can maximize the lower bound L(q) by optimization with respect to the distribution q(Z), which is equivalent to minimizing the KL divergence. If we allow any possible choice for q(Z), then the maximum of the lower bound occurs when the KL diver- gence vanishes, which occurs when q(Z) equals the posterior distribution p(Z|X). However, we shall suppose the model is such that working with the true posterior distribution is intractable.
+
+We therefore consider instead a restricted family of distributions q(Z) and then seek the member of this family for which the KL divergence is minimized. Our goal is to restrict the family sufficiently that they comprise only tractable distributions, while at the same time allowing the family to be sufficiently rich and flexible that it can provide a good approximation to the true posterior distribution. It is important to emphasize that the restriction is imposed purely to achieve tractability, and that sub- ject to this requirement we should use as rich a family of approximating distributions as possible. In particular, there is no ?over-fitting? associated with highly flexible dis- tributions. Using more flexible approximations simply allows us to approach the true posterior distribution more closely.
 \end{topic}
 
 \begin{topic}{vs}{Vector Space}
