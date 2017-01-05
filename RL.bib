@@ -2,68 +2,107 @@
 %% http://bibdesk.sourceforge.net/
 
 
-%% Created for Ermo Wei at 2015-11-29 04:49:29 -0500 
+%% Created for Ermo Wei at 2017-01-03 17:07:20 -0500 
 
 
 %% Saved with string encoding Unicode (UTF-8) 
 
 
-@string{icml2015 = {Proceedings of the 32nd International Conference on Machine Learning (ICML-15)}}
+@string{icml = {International Conference on Machine Learning}}
+
+@string{nips = {International Conference on Neural Information Processing Systems}}
 
 
-@book{Kreyszig1989Introductory,
-	Author = {Erwin Kreyszig},
-	Date-Added = {2015-11-27 07:00:55 +0000},
-	Date-Modified = {2015-11-27 07:01:25 +0000},
-	Title = {Introductory functional analysis with applications},
-	Volume = {81},
-	Year = {1989}}
+@incollection{Levine2011Nonlinear,
+	Author = {Sergey Levine and Zoran Popovic and Vladlen Koltun},
+	Booktitle = nips,
+	Date-Added = {2017-01-03 22:05:43 +0000},
+	Date-Modified = {2017-01-03 22:07:20 +0000},
+	Pages = {19--27},
+	Title = {Nonlinear Inverse Reinforcement Learning with Gaussian Processes},
+	Year = {2011},
+	Bdsk-Url-1 = {http://papers.nips.cc/paper/4420-nonlinear-inverse-reinforcement-learning-with-gaussian-processes.pdf}}
+
+@article{Finn2016Guided,
+	Author = {Chelsea Finn and Sergey Levine and Pieter Abbeel},
+	Bibsource = {dblp computer science bibliography, http://dblp.org},
+	Biburl = {http://dblp.uni-trier.de/rec/bib/journals/corr/FinnLA16},
+	Date-Added = {2017-01-03 22:03:46 +0000},
+	Date-Modified = {2017-01-03 22:04:06 +0000},
+	Journal = {CoRR},
+	Title = {Guided Cost Learning: Deep Inverse Optimal Control via Policy Optimization},
+	Url = {http://arxiv.org/abs/1603.00448},
+	Volume = {abs/1603.00448},
+	Year = {2016},
+	Bdsk-Url-1 = {http://arxiv.org/abs/1603.00448}}
+
+@inproceedings{Syed2007Game,
+	Author = {Umar Syed and Robert E. Schapire},
+	Booktitle = nips,
+	Date-Added = {2017-01-03 22:01:18 +0000},
+	Date-Modified = {2017-01-03 22:02:28 +0000},
+	Pages = {1449--1456},
+	Title = {A Game-theoretic Approach to Apprenticeship Learning},
+	Year = {2007},
+	Bdsk-Url-1 = {http://dl.acm.org/citation.cfm?id=2981562.2981744}}
+
+@inproceedings{Ziebart2008Maximum,
+	Author = {Brian D. Ziebart and Andrew Maas and J. Andrew (Drew) Bagnell and Anind Dey},
+	Booktitle = {Proceeding of AAAI 2008},
+	Date-Added = {2017-01-03 21:55:28 +0000},
+	Date-Modified = {2017-01-03 21:55:42 +0000},
+	Month = {July},
+	Title = {Maximum Entropy Inverse Reinforcement Learning},
+	Year = {2008}}
+
+@inproceedings{Abbeel2004Apprenticeship,
+	Author = {Pieter Abbeel and Ng, Andrew Y.},
+	Booktitle = icml,
+	Date-Added = {2017-01-03 21:49:19 +0000},
+	Date-Modified = {2017-01-03 21:53:29 +0000},
+	Title = {Apprenticeship Learning via Inverse Reinforcement Learning},
+	Year = {2004},
+	Bdsk-Url-1 = {http://doi.acm.org/10.1145/1015330.1015430},
+	Bdsk-Url-2 = {http://dx.doi.org/10.1145/1015330.1015430}}
+
+@inproceedings{Ng2000Algorithms,
+	Author = {Andrew Y. Ng and Stuart J. Russell},
+	Booktitle = icml,
+	Date-Added = {2017-01-03 21:34:13 +0000},
+	Date-Modified = {2017-01-03 21:36:11 +0000},
+	Pages = {663--670},
+	Title = {Algorithms for Inverse Reinforcement Learning},
+	Year = {2000},
+	Bdsk-Url-1 = {http://dl.acm.org/citation.cfm?id=645529.657801}}
+
+@article{conrad2014contraction,
+	Author = {Conrad, Keith},
+	Date-Added = {2017-01-03 21:34:01 +0000},
+	Date-Modified = {2017-01-03 21:34:01 +0000},
+	Journal = {Expository paper. University of Connecticut, College of Liberal Arts and Sciences, Department of Mathematics},
+	Title = {The contraction mapping theorem},
+	Year = {2014}}
 
 @book{Eriksson2013Applied,
 	Author = {Eriksson, Kenneth and Estep, Donald and Johnson, Claes},
-	Date-Added = {2015-11-05 04:08:45 +0000},
-	Date-Modified = {2015-11-05 04:09:02 +0000},
+	Date-Added = {2017-01-03 21:34:01 +0000},
+	Date-Modified = {2017-01-03 21:34:01 +0000},
 	Publisher = {Springer Science \& Business Media},
 	Title = {Applied Mathematics: Body and Soul: Volume 1: Derivatives and Geometry in IR3},
 	Year = {2013}}
 
-@incollection{Riedmiller2005Neural,
-	Author = {Martin Riedmiller},
-	Booktitle = {Machine Learning: ECML 2005},
-	Date-Added = {2015-10-11 06:18:18 +0000},
-	Date-Modified = {2015-10-11 06:19:04 +0000},
-	Pages = {317-328},
-	Series = {Lecture Notes in Computer Science},
-	Title = {Neural Fitted Q Iteration -- First Experiences with a Data Efficient Neural Reinforcement Learning Method},
-	Volume = {3720},
-	Year = {2005},
-	Bdsk-Url-1 = {http://dx.doi.org/10.1007/11564096_32}}
-
-@inproceedings{Vanseijen2015Deeper,
-	Author = {Harm Vanseijen and Rich Sutton},
-	Booktitle = icml2015,
-	Date-Added = {2015-10-11 06:00:35 +0000},
-	Date-Modified = {2015-10-11 06:20:39 +0000},
-	Pages = {2314-2322},
-	Title = {A Deeper Look at Planning as Learning from Replay},
-	Year = {2015},
-	Bdsk-Url-1 = {http://jmlr.org/proceedings/papers/v37/vanseijen15.pdf}}
-
-@article{singh2000convergence,
-	Author = {Singh, Satinder and Jaakkola, Tommi and Littman, Michael L and Szepesv{\'a}ri, Csaba},
-	Date-Added = {2015-10-11 04:15:41 +0000},
-	Date-Modified = {2015-10-11 04:15:41 +0000},
-	Journal = {Machine Learning},
-	Number = {3},
-	Pages = {287--308},
-	Title = {Convergence results for single-step on-policy reinforcement-learning algorithms},
-	Volume = {38},
-	Year = {2000}}
+@book{Kreyszig1989Introductory,
+	Author = {Erwin Kreyszig},
+	Date-Added = {2017-01-03 21:34:01 +0000},
+	Date-Modified = {2017-01-03 21:34:01 +0000},
+	Title = {Introductory functional analysis with applications},
+	Volume = {81},
+	Year = {1989}}
 
 @article{ortner2007linear,
 	Author = {Ortner, Ronald},
-	Date-Added = {2015-10-11 04:15:41 +0000},
-	Date-Modified = {2015-10-11 04:15:41 +0000},
+	Date-Added = {2017-01-03 21:34:01 +0000},
+	Date-Modified = {2017-01-03 21:34:01 +0000},
 	Journal = {Operations research letters},
 	Number = {5},
 	Pages = {619--626},
@@ -71,18 +110,43 @@
 	Volume = {35},
 	Year = {2007}}
 
+@incollection{Riedmiller2005Neural,
+	Author = {Martin Riedmiller},
+	Booktitle = {Machine Learning: ECML 2005},
+	Date-Added = {2017-01-03 21:34:01 +0000},
+	Date-Modified = {2017-01-03 21:34:01 +0000},
+	Pages = {317-328},
+	Series = {Lecture Notes in Computer Science},
+	Title = {Neural Fitted Q Iteration -- First Experiences with a Data Efficient Neural Reinforcement Learning Method},
+	Volume = {3720},
+	Year = {2005},
+	Bdsk-Url-1 = {http://dx.doi.org/10.1007/11564096_32}}
+
+@article{singh2000convergence,
+	Author = {Singh, Satinder and Jaakkola, Tommi and Littman, Michael L and Szepesv{\'a}ri, Csaba},
+	Date-Added = {2017-01-03 21:34:01 +0000},
+	Date-Modified = {2017-01-03 21:34:01 +0000},
+	Journal = {Machine Learning},
+	Number = {3},
+	Pages = {287--308},
+	Title = {Convergence results for single-step on-policy reinforcement-learning algorithms},
+	Volume = {38},
+	Year = {2000}}
+
+@inproceedings{Vanseijen2015Deeper,
+	Author = {Harm Vanseijen and Rich Sutton},
+	Booktitle = icml2015,
+	Date-Added = {2017-01-03 21:34:01 +0000},
+	Date-Modified = {2017-01-03 21:34:01 +0000},
+	Pages = {2314-2322},
+	Title = {A Deeper Look at Planning as Learning from Replay},
+	Year = {2015},
+	Bdsk-Url-1 = {http://jmlr.org/proceedings/papers/v37/vanseijen15.pdf}}
+
 @book{barto1998reinforcement,
 	Author = {Barto, Andrew G},
-	Date-Added = {2015-10-11 04:15:41 +0000},
-	Date-Modified = {2015-10-11 04:15:41 +0000},
+	Date-Added = {2017-01-03 21:33:53 +0000},
+	Date-Modified = {2017-01-03 21:33:53 +0000},
 	Publisher = {MIT press},
 	Title = {Reinforcement learning: An introduction},
 	Year = {1998}}
-
-@article{conrad2014contraction,
-	Author = {Conrad, Keith},
-	Date-Added = {2015-10-11 04:15:41 +0000},
-	Date-Modified = {2015-10-11 04:15:41 +0000},
-	Journal = {Expository paper. University of Connecticut, College of Liberal Arts and Sciences, Department of Mathematics},
-	Title = {The contraction mapping theorem},
-	Year = {2014}}

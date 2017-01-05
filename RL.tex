@@ -639,13 +639,94 @@ w_l = \frac{\widetilde{r}_l}{\sum_{l=1}^{L}\widetilde{r}_l} = \frac{\widetilde{p
 As with rejection sampling, the success of the importance sampling approach depends crucially on how well the sampling distribution $q(\mat{z})$ matches the desired distribution $p(\mat{z})$. If, as is often the case, $p(\mat{z})f(\mat{z})$ is strongly varying and has a significant proportion of its mass concentrated over relatively small regions of $\mat{z}$ space, then the set of importance weights $\{r_l\}$ may be dominated by a few weights having large values, with the remaining weights being relatively insignificant. Thus the effective sample size can be much smaller than the apparent sample size $L$. The problem is even more severe if none of the samples falls in the regions where $p(\mat{z})f(\mat{z})$ is large. In that case, the apparent variances of $r_l$ and $r_l f(\mat{z}^{(l)})$ may be small even though the estimate of the expectation may be severely wrong. Hence a major drawback of the importance sampling method is the potential to produce results that are arbitrarily in error and with no diagnostic indication. This also highlights a key requirement for the sampling distribution $q(\mat{z})$, namely that it should not be small or zero in regions where $p(\mat{z})$ may be significant.
 \end{topic}
 
-\begin{topic}{IRL}{Inverse Reinforcement Learning} 
-Reason for using IRL instead of behavior cloning:
+\begin{topic}{IRL}{Inverse Reinforcement Learning}  Inverse Reinforcement Learning, also known as Inverse Optimal Control or Inverse Optimal Planning, can be characterized informally as follows \citep{Ng2000Algorithms}.
+
+\textbf{Given} 1) measurements of an agent's behavior over time, in a variety of circumstances, 2) if needed, measurements of the sensory inputs to that agent; 3) if available, a model of the environment.
+
+\textbf{Determine} the reward function being optimized.
+
+A closely related topic to IRL is behavior cloning, where we directly learn the teacher's policy using supervised learning. However, the reason we want to use IRL instead of behavior cloning is that the reward function is often much more succinct than the optimal policy. Reward functions can generalize the expert's behavior to the state space regions not covered by the demonstration. For example, the transition model can change and thus, the optimal policy change as well. In addition to that, behavioral cloning cannot be applied whenever the expert demonstrates actions that cannot be executed by the learner (think at a humanoid robot that learns by observing a human expert).
+
+Inverse Reinforcement Learning was first proposed as machine learning problem in \citep{Ng2000Algorithms}.  The basic principle is to find $R^*$ (optimal reward function) given the demonstration from expert's policy $\pi^*$ such that
+\[
+	\E\bigg[\sum_{t=0}^{\infty} \gamma^{t} R^{*}(s_t)\big|\pi^{*}\bigg] \ge \E\bigg[\sum_{t=0}^{\infty} \gamma^{t} R^{*}(s_t)\big|\pi\bigg] \quad \forall \pi
+\]
+
+However, this is an ill-posed problem with several challenges. 
 \begin{itemize}
-\item Reward functions can generalize the expert's behavior to the state space regions not covered by the demonstration. For example, the transition model can change and thus, the optimal policy change as well. 
-\item behavioral cloning cannot be applied whenever the expert demonstrates actions that cannot be executed by the
-learner (think at a humanoid robot that learns by observing a human expert)
+\item Demonstrated behavior may be optimal for many different reward function, including degeneracies (e.g. $r = 0$ for all states)
+\item There may be no feasible reward function apart from degeneracies for which demonstrated behavior is optimal
+\item Usually only the trajectories of expert are observed instead of the policy $\pi^*$.
+\item Expert's policy may be necessary optimal
 \end{itemize}
+
+We start to look the some of the mathematical formulations for this problem. 
+\paragraph{Tabular Case} We first consider the simplest case where we use tabular representations. Since this is tabular case with finite states and actions, we can write everything in matrix form. In here, we assume the reward function is depend on the state instead of state and action, that is, we have $R(s)$ instead of $R(s,a)$. And we can write the reward function as a vector, where $i$th element represent the reward for $i$th state.
+\[
+	\mat{r} = \big[R(s_1) \quad R(s_2) \quad \ldots \quad R(s_n)\big]^{T}
+\]
+Similarly, the value function can also represent this way.
+\[
+	\mat{v^\pi} =  \big[V^{\pi}(s_1) \quad V^{\pi}(s_2) \quad \ldots \quad V^{\pi}(s_n)\big]^{T}
+\]
+For each action $a$, we let $\mat{P_a}$ be the $N\times N$ matrix, in which element $(i,j)$ gives the probability of transitioning to state $j$ upon taking action $a$ in state $i$.
+\[
+\mat{P_a} = \begin{bmatrix} 
+    P_{11} & \dots & P_{1n}\\
+    \vdots & \ddots & \vdots\\
+    P_{n1} &\dots   & P_{nn} 
+    \end{bmatrix}
+\]
+We further let the symbol $\succ$ and $\succeq$ denote strict and non-strict vectorial inequality, i.e., $x\succ y$ if and only if $\forall i \  x_i > y_i$. Recall the \linktopic{bellmanequation}{Bellman equations}
+\[
+\begin{split}
+V^{\pi}(s) = R(s) + \gamma \sum_{s'}P(s'|s,\pi(s))V^{\pi}(s')\\
+Q^{\pi}(s,a) = R(s) + \gamma \sum_{s'}P(s'|s,a)V^{\pi}(s')
+\end{split}
+\]
+And the definition of optimal policy
+\[
+	\pi^*(s) \in \argmax_{a\in A}Q^{\pi}(s,a) \quad \text{for all } s \in S
+\]
+Suppose the optimal policy is to play $a_1$ for all states, so that $\pi(s_i)\equiv a_1$. We convert the first Bellman equation of state values into matrix form with the notation we defined before. So we have 
+\[
+\mat{v^{\pi}} = \mat{r} + \gamma\mat{P_{a_1}}\mat{v^{\pi}}
+\]
+Thus, we can have 
+\[
+\mat{v^{\pi}} = (\mat{I} - \gamma\mat{P_{a_1}})^{-1} \mat{r}
+\]
+Now consider the second Bellman equation
+\[
+\begin{split}
+& a_1 \equiv \pi^*(s) \in \argmax_{a\in A} \sum_{s'} P(s'|s,a) V^{\pi}(s') \quad \forall s \in S\\
+\Rightarrow &\ \sum_{s'} P(s'|s,a_1) V^{\pi}(s') \ge \sum_{s'} P(s'|s,a) V^{\pi}(s') \quad \forall s \in S, a\in A\\
+\Rightarrow &\ \mat{P_{a_1}}  \mat{v^{\pi}} \succeq  \mat{P_a}  \mat{v^{\pi}}  \quad \forall a\in A \backslash a_1\\
+\Rightarrow &\ \mat{P_{a_1}}(\mat{I} - \gamma\mat{P_{a_1}})^{-1} \mat{r} \succeq \mat{P_{a}}(\mat{I} - \gamma\mat{P_{a_1}})^{-1} \mat{r}\\
+\Rightarrow &\ (\mat{P_{a_1}} - \mat{P_{a}})(\mat{I} - \gamma\mat{P_{a_1}})^{-1}\mat{r} \succeq 0
+\end{split}
+\]
+For finite-state MDPs, this result characterizes the set of all reward function that  are solutions to the inverse reinforcement learning problems. However, this result have two problem. The first one is the degeneracies problem we mentioned before, where $\mat{r} = 0$ is always a solution. Second, for most MDPs, it also seems likely that there are many choices of $\mat{r}$ that meet the condition.  Ng and Russell solve this problem by formulating it as an linear programming problem and add in the penalty term \citep{Ng2000Algorithms}. They first require that the reward function should make the $\pi^*$ optimal and also make any other single step deviated from $\pi^*$ as cost as possible. Thus, for all the reward function $\mat{r}$ satisfied the previous equation, they choose to the one so to maximize
+\[
+\sum_{s\in S} \bigg(Q^{\pi}(s, a_1) - \max_{a\in A\backslash a_1}Q^{\pi}(s,a)\bigg)
+\]
+That is, they seek to maximize the sum of the difference between  the value of the optimal action and the value of the second-best action. In addition, they pointed out that, all other things being equal, solutions with mainly small rewards are ``simpler'' and therefore should be preferable. As a consequence, they add in a $\ell_1$-penalty term $-\lambda||\mat{r}||_1$, so that with sufficiently large $\lambda$, $\mat{r}$ will often be nonzero in only a few states, consistent with the idea of being ``simple''. So the final opitmization problem is:
+\[
+\begin{split}
+\text{maximize} & \quad \sum_{i=1}^{N} \min_{a\in \{a_2,\ldots,a_k\}}\bigg\{ \big(\mat{P_{a_1}}(i)-\mat{P_{a}}(i)\big)\big(\mat{I} - \gamma\mat{P_{a_1}}\big)^{-1}\mat{r} \bigg\}-\lambda ||\mat{r}||_1\\
+\text{subject to} & \quad (\mat{P_{a_1}} - \mat{P_{a}})(\mat{I} - \gamma\mat{P_{a_1}})^{-1}\mat{r}  \succeq 0 \quad \forall a \in A \backslash a_1\\
+& \quad |\mat{r}_i| \le R_{\text{max}}, i = 1, \ldots, N
+\end{split}
+\]
+where $\mat{P_{a}}(i)$ denote the $i$th row of $\mat{P_{a}}$. Several things need to be mentioned for this formulation. The first one is that  the constraint on the absolute value of reward function are added in, so the reward we receive cannot larger than $R_{\text{max}}$. The second is that how do we determine the value of $\lambda$. As the value of $\lambda$ increase, there will be a phase transition at some point $\lambda_0$, such that the optimal $\mat{r}$ is not all zero for $\lambda < \lambda_0$, and $\mat{r} = 0$ for $\lambda \ge \lambda_0$. So we want the $\lambda = \lambda_0^{-}$
+
+
+\citep{Abbeel2004Apprenticeship}
+\citep{Ziebart2008Maximum}
+\citep{Syed2007Game}
+\citep{Finn2016Guided}
+\citep{Levine2011Nonlinear}
+
 \end{topic}
 
 \begin{topic}{lipcon}{Lipschitz Continuity}
