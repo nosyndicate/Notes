@@ -319,7 +319,7 @@ Differential Entropy generalize the concept of \linktopic{entropy}{entropy} to c
 We can now quantize the continuous variable $x$ by assigning any value $x$ to the value $x_i$ whenever $x$ falls in the $i$th bin. The probability of observing the value $x_i$ is then $p(x_i)\Delta$. This gives a discrete distribution for which the entropy takes the form
 \[
 \begin{split}
-H_{\Delta} & = -\sum_i p(x_i) \Delta \ln(p(x_i)\Delta)\\
+H_{p} & = -\sum_i p(x_i) \Delta \ln(p(x_i)\Delta)\\
 & = -\sum_i p(x_i)\Delta \ln p(x_i) - \ln\Delta
 \end{split}
 \]
@@ -369,15 +369,15 @@ h(x) = -\log_2 p(x)
 \]
 The negative sign ensures that information is positive or zero and also the low probability events $x$ correspond to high information content. By adopting the convention in information theory, we use the base of $2$, and in this case, the units of $h(x)$ are bits (`binary digits'). If we use the natural logarithms in defining entropy, the units is `nats' instead of bits, which differ simply by a factor of $\ln 2$.
 
-Now suppose that a sender wishes to transmit the value of a random variable to a receiver. The average amount of information that they transmit in the process is obtained by taking the expectation of $h(x)$ with respect to the distribution p(x) and is given by
+Now suppose that a sender wishes to transmit the value of a random variable to a receiver. The average amount of information that they transmit in the process is obtained by taking the expectation of $h(x)$ with respect to the distribution $p(x)$ and is given by
 \[
-H[x] = -\sum_x p(x) \log_2 p(x)
+H_p[x] = -\sum_x p(x) \log_2 p(x)
 \]
 or
 \[
-H[x] = -\sum_x p(x) \ln p(x)
+H_p[x] = -\sum_x p(x) \ln p(x)
 \]
-This important quantity is called the \textit{\color{red}{entropy}} of the random variable $x$. Note that $\lim_{x\to 0}p \ln p = 0$ and so we shall take $p(x) \ln p(x) = 0$ whenever we encounter a value for $x$ such that $p(x) = 0$.  Entropy can be thought as the average amount of information needed to specify the state of a random variable and a sharply peaked distribution $p(x_i)$ will have a relatively low entropy. 
+This important quantity is called the \textit{\color{red}{entropy}} of the random variable $x$, and the subscript of $H$ denote which probability distribution we are referring to. Note that $\lim_{x\to 0}p \ln p = 0$ and so we shall take $p(x) \ln p(x) = 0$ whenever we encounter a value for $x$ such that $p(x) = 0$.  Entropy can be thought as the average amount of information needed to specify the state of a random variable and a sharply peaked distribution $p(x_i)$ will have a relatively low entropy. 
 
 
 \end{topic}
@@ -647,16 +647,16 @@ As with rejection sampling, the success of the importance sampling approach depe
 
 A closely related topic to IRL is behavior cloning, where we directly learn the teacher's policy using supervised learning. However, the reason we want to use IRL instead of behavior cloning is that the reward function is often much more succinct than the optimal policy. Reward functions can generalize the expert's behavior to the state space regions not covered by the demonstration. For example, the transition model can change and thus, the optimal policy change as well. In addition to that, behavioral cloning cannot be applied whenever the expert demonstrates actions that cannot be executed by the learner (think at a humanoid robot that learns by observing a human expert).
 
-Inverse Reinforcement Learning was first proposed as machine learning problem in \citep{Ng2000Algorithms}.  The basic principle is to find $R^*$ (optimal reward function) given the demonstration from expert's policy $\pi^*$ such that
+Inverse Reinforcement Learning was first proposed as machine learning problem in \citep{Ng2000Algorithms}.  The basic principle is to find $R^*$ (most likely reward function) given the demonstration from expert's policy $\pi_E$ such that
 \[
-	\E\bigg[\sum_{t=0}^{\infty} \gamma^{t} R^{*}(s_t)\big|\pi^{*}\bigg] \ge \E\bigg[\sum_{t=0}^{\infty} \gamma^{t} R^{*}(s_t)\big|\pi\bigg] \quad \forall \pi
+	\E\bigg[\sum_{t=0}^{\infty} \gamma^{t} R^*(s_t)\big|\pi_E\bigg] \ge \E\bigg[\sum_{t=0}^{\infty} \gamma^{t} R^*(s_t)\big|\pi\bigg] \quad \forall \pi
 \]
 
 However, this is an ill-posed problem with several challenges. 
 \begin{itemize}
 \item Demonstrated behavior may be optimal for many different reward function, including degeneracies (e.g. $r = 0$ for all states)
 \item There may be no feasible reward function apart from degeneracies for which demonstrated behavior is optimal
-\item Usually only the trajectories of expert are observed instead of the policy $\pi^*$.
+\item Usually only the trajectories of expert are observed instead of the policy $\pi_E$.
 \item Expert's policy may be necessary optimal
 \end{itemize}
 
@@ -688,28 +688,28 @@ And the definition of optimal policy
 \[
 	\pi^*(s) \in \argmax_{a\in A}Q^{\pi}(s,a) \quad \text{for all } s \in S
 \]
-Suppose the optimal policy is to play $a_1$ for all states, so that $\pi^*(s_i)\equiv a_1$. We convert the first Bellman equation of state values into matrix form with the notation we defined before. So we have 
+Suppose the optimal policy is to play $a_1$ for all states, so that $\pi_E(s_i)\equiv a_1$ (We assume expert's policy is the optimal policy under the unknown reward function, so $\pi_E = \pi^*$. But to be clear that it is given by the demonstration, we use $\pi_E$ instead of $\pi^*$). We convert the first Bellman equation of state values into matrix form with the notation we defined before. So we have 
 \[
-\mat{v^{\pi^*}} = \mat{r} + \gamma\mat{P_{a_1}}\mat{v^{\pi^*}}
+\mat{v^{\pi_E}} = \mat{r} + \gamma\mat{P_{a_1}}\mat{v^{\pi_E}}
 \]
 Thus, we can have 
 \[
-\mat{v^{\pi^*}} = (\mat{I} - \gamma\mat{P_{a_1}})^{-1} \mat{r}
+\mat{v^{\pi_E}} = (\mat{I} - \gamma\mat{P_{a_1}})^{-1} \mat{r}
 \]
 Now consider the second Bellman equation
 \begin{equation}
 \label{eq:irlt}
 \begin{split}
-& a_1 \equiv \pi^*(s) \in \argmax_{a\in A} \sum_{s'} P(s'|s,a) V^{\pi^*}(s') \quad \forall s \in S\\
-\Rightarrow &\ \sum_{s'} P(s'|s,a_1) V^{\pi^*}(s') \ge \sum_{s'} P(s'|s,a) V^{\pi^*}(s') \quad \forall s \in S, a\in A\\
-\Rightarrow &\ \mat{P_{a_1}}  \mat{v^{\pi^*}} \succeq  \mat{P_a}  \mat{v^{\pi^*}}  \quad \forall a\in A \backslash a_1\\
+& a_1 \equiv \pi_E(s) \in \argmax_{a\in A} \sum_{s'} P(s'|s,a) V^{\pi_E}(s') \quad \forall s \in S\\
+\Rightarrow &\ \sum_{s'} P(s'|s,a_1) V^{\pi_E}(s') \ge \sum_{s'} P(s'|s,a) V^{\pi_E}(s') \quad \forall s \in S, a\in A\\
+\Rightarrow &\ \mat{P_{a_1}}  \mat{v^{\pi_E}} \succeq  \mat{P_a}  \mat{v^{\pi_E}}  \quad \forall a\in A \backslash a_1\\
 \Rightarrow &\ \mat{P_{a_1}}(\mat{I} - \gamma\mat{P_{a_1}})^{-1} \mat{r} \succeq \mat{P_{a}}(\mat{I} - \gamma\mat{P_{a_1}})^{-1} \mat{r}\\
 \Rightarrow &\ (\mat{P_{a_1}} - \mat{P_{a}})(\mat{I} - \gamma\mat{P_{a_1}})^{-1}\mat{r} \succeq 0
 \end{split}
 \end{equation}
 For finite-state MDPs, this result characterizes the set of all reward function that  are solutions to the inverse reinforcement learning problems. However, this result have two problem. The first one is the degeneracies problem we mentioned before, where $\mat{r} = 0$ is always a solution. Second, for most MDPs, it also seems likely that there are many choices of $\mat{r}$ that meet the condition.  Ng and Russell solve this problem by formulating it as an linear programming problem and add in the penalty term \citep{Ng2000Algorithms}. They first require that the reward function should make the $\pi^*$ optimal and also make any other single step deviated from $\pi^*$ as cost as possible. Thus, for all the reward function $\mat{r}$ satisfied the previous equation, they choose to the one so to maximize
 \[
-\sum_{s\in S} \bigg(Q^{\pi^*}(s, a_1) - \max_{a\in A\backslash a_1}Q^{\pi^*}(s,a)\bigg)
+\sum_{s\in S} \bigg(Q^{\pi_E}(s, a_1) - \max_{a\in A\backslash a_1}Q^{\pi_E}(s,a)\bigg)
 \]
 That is, they seek to maximize the sum of the difference between  the value of the optimal action and the value of the second-best action. In addition, they pointed out that, all other things being equal, solutions with mainly small rewards are ``simpler'' and therefore should be preferable. As a consequence, they add in a $\ell_1$-penalty term $-\lambda||\mat{r}||_1$, so that with sufficiently large $\lambda$, $\mat{r}$ will often be nonzero in only a few states, consistent with the idea of being ``simple''. So the final optimization problem is:
 \[
@@ -722,13 +722,13 @@ That is, they seek to maximize the sum of the difference between  the value of t
 where $\mat{P_{a}}(i)$ denote the $i$th row of $\mat{P_{a}}$. Several things need to be mentioned for this formulation. The first one is that  the constraint on the absolute value of reward function are added in, so the reward we receive cannot larger than $R_{\text{max}}$. The second one is that how do we determine the value of $\lambda$. As the value of $\lambda$ increase, there will be a phase transition at some point $\lambda_0$, such that the optimal $\mat{r}$ is not all zero for $\lambda < \lambda_0$, and $\mat{r} = 0$ for $\lambda \ge \lambda_0$. So we want to find the $\lambda = \lambda_0^{-}$, a value just before the phase transition, probably through binary search, since it is gives the ``simplest'' $\mat{r}$. The last thing we we want to mention is the maximization goal. In the linear programming formulation, we simply write it in the matrix form.
 \[
 \begin{split}
-	& \sum_{s\in S} \bigg(Q^{\pi^*}(s, a_1) - \max_{a\in A\backslash a_1}Q^{\pi^*}(s,a)\bigg)\\
-\Rightarrow & \sum_{s\in S} \bigg(R(s) + \gamma \sum_{s'}P(s'|s,a_1)V^{\pi^*}(s') - \max_{a\in A\backslash a_1} \big(R(s) + \gamma \sum_{s'}P(s'|s,a)V^{\pi^*}(s')\big)\bigg)\\
-\Rightarrow & \sum_{s\in S} \bigg(\gamma \sum_{s'}P(s'|s,a_1)V^{\pi^*}(s') - \max_{a\in A\backslash a_1} \big(\gamma \sum_{s'}P(s'|s,a)V^{\pi^*}(s')\big)\bigg)\\
-\Rightarrow & \sum_{s\in S} \min_{a\in A\backslash a_1} \bigg(\gamma \sum_{s'}P(s'|s,a_1)V^{\pi^*}(s') -  \gamma \sum_{s'}P(s'|s,a)V^{\pi^*}(s')\bigg)\\ 
-\Rightarrow & \gamma \sum_{s\in S} \min_{a\in A\backslash a_1} \bigg(\sum_{s'}P(s'|s,a_1)V^{\pi^*}(s') -  \sum_{s'}P(s'|s,a)V^{\pi^*}(s')\bigg)\\ 
-\Rightarrow & \gamma \sum_{i=0}^{N} \min_{a\in A\backslash a_1} \bigg(\mat{P_{a_1}}(i)  \mat{v^{\pi^*}} -  \mat{P_a}(i)  \mat{v^{\pi^*}}\bigg)\\ 
-\Rightarrow & \gamma \sum_{i=0}^{N} \min_{a\in A\backslash a_1} \bigg(\big(\mat{P_{a_1}}(i)  -  \mat{P_a}(i)\big) \mat{v^{\pi^*}}\bigg)\\ 
+	& \sum_{s\in S} \bigg(Q^{\pi_E}(s, a_1) - \max_{a\in A\backslash a_1}Q^{\pi_E}(s,a)\bigg)\\
+\Rightarrow & \sum_{s\in S} \bigg(R(s) + \gamma \sum_{s'}P(s'|s,a_1)V^{\pi_E}(s') - \max_{a\in A\backslash a_1} \big(R(s) + \gamma \sum_{s'}P(s'|s,a)V^{\pi_E}(s')\big)\bigg)\\
+\Rightarrow & \sum_{s\in S} \bigg(\gamma \sum_{s'}P(s'|s,a_1)V^{\pi_E}(s') - \max_{a\in A\backslash a_1} \big(\gamma \sum_{s'}P(s'|s,a)V^{\pi_E}(s')\big)\bigg)\\
+\Rightarrow & \sum_{s\in S} \min_{a\in A\backslash a_1} \bigg(\gamma \sum_{s'}P(s'|s,a_1)V^{\pi_E}(s') -  \gamma \sum_{s'}P(s'|s,a)V^{\pi_E}(s')\bigg)\\ 
+\Rightarrow & \gamma \sum_{s\in S} \min_{a\in A\backslash a_1} \bigg(\sum_{s'}P(s'|s,a_1)V^{\pi_E}(s') -  \sum_{s'}P(s'|s,a)V^{\pi_E}(s')\bigg)\\ 
+\Rightarrow & \gamma \sum_{i=0}^{N} \min_{a\in A\backslash a_1} \bigg(\mat{P_{a_1}}(i)  \mat{v^{\pi_E}} -  \mat{P_a}(i)  \mat{v^{\pi_E}}\bigg)\\ 
+\Rightarrow & \gamma \sum_{i=0}^{N} \min_{a\in A\backslash a_1} \bigg(\big(\mat{P_{a_1}}(i)  -  \mat{P_a}(i)\big) \mat{v^{\pi_E}}\bigg)\\ 
 \Rightarrow & \gamma \sum_{i=0}^{N} \min_{a\in A\backslash a_1} \bigg(\big(\mat{P_{a_1}}(i)  -  \mat{P_a}(i)\big) (\mat{I} - \gamma\mat{P_{a_1}})^{-1} \mat{r}\bigg)\\
 \end{split}
 \]
@@ -737,19 +737,21 @@ However, since the $\gamma$ is a constant, we can drop it in the maximization go
 \[
 R(s) = w_1\phi_1(s) + w_2\phi_2(s) + \dots +w_k\phi_k(s)
 \]
-where $\phi_1,\ldots, \phi_k$ are fixed, known, bounded basis functions mapping from $S$ into $\mathbb{R}$, and $w_i$s are the unknown parameters that we want to ``fit''. The constraint that a valid reward function should satisfy is 
+where $\phi_1,\ldots, \phi_k$ are fixed, known, bounded basis functions mapping from $S$ into $\mathbb{R}$, and $w_i$s are the unknown parameters that we want to ``fit''. The constraint that a valid reward function with respect to expert's policy $\pi_E$ should satisfy is 
 \begin{equation}
 \label{eq:irllfa}
-\E_{s' \sim P(s'|s,a_1)}\big[V^{\pi}(s')\big] \ge \E_{s' \sim P(s'|s,a)}\big[V^{\pi}(s')\big] \quad \forall s\in S, a\in A
+\E_{s' \sim P(s'|s,a_1)}\big[V^{\pi_E}(s')\big] \ge \E_{s' \sim P(s'|s,a)}\big[V^{\pi_E}(s')\big] \quad \forall s\in S, a\in A
 \end{equation}
 which can be thought as the generalization of (\ref{eq:irlt}). This constraint have two problems. The first one is that, for infinite state spaces, there are infinitely many constraints of the form in equation (\ref{eq:irllfa}). Second, we constraint ourselves to use linear function to represent the reward function, but the ``true'' reward function may not exist in this class of functions. That is, for all the reward function in linear form, the policy $\pi^*$ may not be optimal for any of them. We solve the first issue by only consider a finite subset of the entire state space . To be more specific, we only consider those initial states $s_0 \sim D$, where $D$ is the initial-state distribution. For the second problem, we are willing to relax some of the constraints by paying a penalty when they are violated. So the final linear programming formulation is
 \[
 \begin{split}
-\text{maximize} & \quad \sum_{s_\in S_0} \min_{a\in \{a_2,\ldots,a_k\}}\bigg\{p\big(\E_{s' \sim P(s'|s,a_1)}\big[V^{\pi}(s')\big] \ge \E_{s' \sim P(s'|s,a)}\big[V^{\pi}(s')\big]\big) \bigg\}\\
+\text{maximize} & \quad \sum_{s_\in S_0} \min_{a\in \{a_2,\ldots,a_k\}}\bigg\{p\big(\E_{s' \sim P(s'|s,a_1)}\big[V^{\pi_E}(s')\big] \ge \E_{s' \sim P(s'|s,a)}\big[V^{\pi_E}(s')\big]\big) \bigg\}\\
 \text{subject to} & \quad |w_i| \le 1, i = 1, \ldots, k
 \end{split}
 \]
-where $p$ is given by $p(x) = x$ if $x\ge 0$, $p(x) = 2x$ otherwise, and 2 is penalty weight that was heuristically chosen in the original paper.
+where $p$ is given by $p(x) = x$ if $x\ge 0$, $p(x) = 2x$ otherwise, and 2 is penalty weight that was heuristically chosen in the original paper. 
+ 
+Now think about the situations where we only have sample trajectories.
 \paragraph{Apprenticeship Learning via Feature Matching} The ultimate goal of IRL is to learn a control policy. Thus, after recover the reward function, we need to learn the policy given that reward function. We first consider the value of a policy $\pi$
 \[
 \begin{split}
@@ -758,11 +760,34 @@ where $p$ is given by $p(x) = x$ if $x\ge 0$, $p(x) = 2x$ otherwise, and 2 is pe
 = & w \cdot \E\bigg[\sum_{t=0}^{\infty} \gamma^t \phi(s_t)|\pi \bigg]
 \end{split}
 \]
-The last term of the right hand side is the expecte discounted accumulated feature value vector, or more succinctly the feature expectations $\mu(\pi)$ \citep{Abbeel2004Apprenticeship}.
+The last term of the right hand side is the expected discounted accumulated feature value vector, or more succinctly the \phrase{feature expectations} $\mu(\pi)$ \citep{Abbeel2004Apprenticeship}.
 \[
 \mu(\pi) = \E\bigg[\sum_{t=0}^{\infty} \gamma^t \phi(s_t)|\pi \bigg] \in \mathbb{R}^k
 \]
-\citep{Abbeel2004Apprenticeship}
+However, expert's feature expectations $\mu_E = \mu(\pi_E)$ can only be estimate given that we only know the trajectories of expert. Specifically, given a set of $m$ trajectories $\{s_0^{(i)},s_1^{(i)},\ldots\}_{i=1}^m$ generated by the expert, we denote the empirical estimate for $\mu_E$ by
+ \[
+ \hat{\mu}_E = \frac{1}{m} \sum_{i=1}^m \sum_{t=0}^{\infty} \gamma^t \phi(s_t^{(i)})
+ \]
+ The problem is the following: Given an MDP$\backslash$R, a feature mapping $\phi$ and the expert's feature expectations $\mu_E$, find a policy whose performance is close to that of the experts's, on the unknown reward function $R^* = w^{*T}\phi$. To achieve this, we want to find a policy $\tilde{\pi}$ such that $||\mu(\tilde{\pi})-\mu_E||_2 \le \epsilon$. For such a $\tilde{\pi}$, we would have that for any $w \in \mathbb{R}^k \ (||w||_1\le1)$,
+ \[
+ \begin{split}
+ &\ \bigg|\E\big[\sum_{t=0}^{\infty}\gamma^t R(s_t)|\pi_E\big] - \E\big[\sum_{t=0}^{\infty}\gamma^t R(s_t)|\tilde{\pi}\big]\bigg|\\
+ = &\ \big|w^T\mu(\tilde{\pi})-w^T\mu_E\big|\\
+ \le &\ ||w||_2\cdot||\mu(\tilde{\pi})-\mu_E||_2\\
+ \le &\ 1\cdot \epsilon  = \epsilon
+ \end{split}
+ \]
+ The first inequality follows from the fact that $|x^Ty| \le ||x||_2||y||_2$. The second from $||w||_2 \le ||w||_1 \le 1$. Thus, the problem can be reduced to finding a policy $\tilde{\pi}$ that induces feature expectations $\mu(\tilde{\pi})$. The corresponding apprenticeship learning algorithm is like this:
+ \begin{enumerate}
+ \item Start with some arbitrary policy $\pi^{(0)}$, compute or estimate $\mu^{(0)} = \mu(\pi^{(0)})$ through simulation and set $i=1$.
+ \item Compute $t^{(i)} = \max_{w:||w||_2\le1}\min_{j\in\{0,\ldots,(i-1)\}}w^T(\mu_E-\mu^{(j)})$.\\
+ Then set $w^{(i)}$ be the parameter values obtained by this maximum.
+ \item If $t^{(i)} \le \epsilon$, return $\{\pi^{(i)}:i=0,\ldots,n\}$.
+ \item Using the RL algorithm to get the optimal policy $\pi^{(i)}$ for the MDP with reward function $R = (w^{(i)})^T\phi$.
+ \item Compute or estimate $\mu^{(i)} = \mu(\pi^{(i)})$.
+ \item Set $i=i+1$, and go back to step 2.
+ \end{enumerate}
+ \citep{Abbeel2004Apprenticeship}
 \citep{Ziebart2008Maximum}
 \citep{Syed2007Game}
 \citep{Finn2016Guided}
@@ -1021,6 +1046,39 @@ Using the same notation in \linktopic{policygradient}{Policy Gradient},
 \Working
 \end{topic}
 
+\begin{topic}{pmaxent}{Principle of Maximum Entropy}
+When given only partial information about a probability distribution, $p$, typically many different distributions, $\tilde{p}$, are capable of matching that information. For example, many distributions have the same mean value. The principle of maximum entropy resolves the ambiguity of an under-constrained distribution by selecting the single distribution that has the least commitment to any particular outcome while matching the observational constraints imposed on the distribution \citep{Jaynes1957Information}. The lack of commitment (or uncertainty) of the distribution is measured by Shannon's \linktopic{entropy}{information entropy}.
+
+The maximum entropy probability distribution is the distribution with maximum entropy subject to matching expected characteristics (denoted as characteristic functions $c_k(\tilde{p})$ with empirical characteristic averages $c_k(p)$) and is obtained from the following optimization:
+\[
+\begin{split}
+\text{maximize} & \quad \: H_p[x]\\
+\text{subject to} & \quad \: \forall k \: c_k(p) = c_k(\tilde{p})\\
+& \quad \sum_x p(x) = 1\\
+& \quad \: \forall x \: p(x) \ge 0
+\end{split}
+\]
+While any characteristic function is possible, people usually focus on probabilistically weighted characteristic functions, $c_k(p) = \E_p[f_k(x)] =  \sum_{x} p(x)f_k(x)$. The distribution satisfying the maximization then has the following form:
+\[
+p(x) = Z(\alpha)^{-1} \exp \bigg\{\sum_{k} \alpha_k f_k(x)\bigg\}
+\]
+The parameters, $\{\alpha_k\}$, are generally obtained using numerical optimization techniques to satisfy the constraints of the previous optimization problem. The normalization factor, $Z(\alpha) = \exp \big\{\sum_{k} \alpha_k f_k(x)\big\}$, forces the distribution to normalize and is also called the \phrase{partition function}.
+
+Many of the fundamental building blocks of statistics are maximum entropy distributions. The Gaussian distribution, for example, has the form of a maximum entropy distribution constrained to \linktopic{dentropy}{match first and second moments}. 
+
+There are a number of different arguments that have been put forth to justify the principle of maximum entropy's usage. \cite{Jaynes1957Information} originally employed an information-theoretic justification that a lower entropy probability distribution corresponds to ``committing'' to enforce additional assumptions on the probability distribution that are not necessary given the available information (i.e., constraints on the distribution). While this justification has an intuitive appeal as a generalization of the principle of indifference, other arguments present stronger quantitative justification.
+
+\begin{comment}
+Not totally understand this part
+A second justification, suggested by Graham Wallis to Edwin Jaynes, derives the maximum entropy distribution as the most probable of all ``fair'' random distributions that match provided constraints. Consider the process of assigning probabilities $\{p_1,\ldots,p_m\}$ to $m$ different possibilities by (uniformly) randomly assigning n $\gg$ m quanta among those possibilities. If a random assignment does not match provided constraints on the distribution, a new assignment is generated until one that matches constraints is found. The most likely distribution that will be found by this process maximizes $W = \frac{n!}{n_1!\ldots n_m!}$. As $n\rightarrow \infty$, a monotonic function of $W$, $\frac{1}{n}\log W \rightarrow -\sum_{i=1}^{m}p_i\log p_i$, which is the entropy of the distribution. As a result, the most likely constraint-satisfying assignment from this process is equivalent to the maximum entropy distribution in the limit of infinitesimally small quanta of probability. Note that this derivation neither assumes nor employs any notions from information theory. Rather, information-theoretic measures follow from the derivation.
+\end{comment}
+
+An important predictive justification is from a game-theoretic perspective. It pits the decision maker and nature against each other in the choice of probability distributions $p(x)$ and $\tilde{p}(x)$. The maximum entropy distribution minimizes the worst case prediction log-loss,
+\[
+	\
+\]
+
+\end{topic}
 \begin{topic}{reinforce}{REINFORCE}
 REINFORCE algorithm also finds an unbiased estimate of
 the gradient, but without the assistance of a learned value function. REINFORCE
@@ -1041,7 +1099,7 @@ Likelihood Ratio Methods
 	= &\ \E \big[ \nabla_{\theta} \ln p_{\theta}(\tau)\ r(\tau) \big]
 \end{split}
 \]
-However, we know that
+Note that we are having a stochastic policy, thus, $r(\tau)$ is not a function of $\theta$ as it depend on the action of agent which is probabilistically depend on $\theta$. So there is no term \(\nabla_{\theta} r(\tau)\). However, we know that
 \[
 p_{\theta}(\tau) = p(x_0) \prod_{k=0}^{H}p(x_{k+1}|x_k,u_k)\pi_{\theta}(u_k|x_k)
 \]
